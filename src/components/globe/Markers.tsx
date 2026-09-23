@@ -1,0 +1,156 @@
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import {
+  AdditiveBlending,
+  CanvasTexture,
+  Color,
+  Group,
+  Sprite,
+  SpriteMaterial,
+} from "three";
+import { CS2_MAJORS } from "@/data/cs2-majors";
+import { MARKER_RADIUS, latLngToVector3 } from "@/lib/geo";
+import { useGlobeStore } from "@/store/globe-store";
+import { globeInput } from "./input-state";
+
+function makeGlowTexture(hex: string) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new CanvasTexture(canvas);
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "#ffffff");
+  g.addColorStop(0.22, hex);
+  g.addColorStop(0.55, `${hex}88`);
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  const tex = new CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+const CS2 = "#7dd3fc";
+const CUSTOM = "#e7eef8";
+
+function PulseMarker({
+  lat,
+  lng,
+  color,
+  texture,
+  selected,
+  onSelect,
+}: {
+  lat: number;
+  lng: number;
+  color: string;
+  texture: CanvasTexture;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const group = useRef<Group>(null);
+  const core = useRef<Sprite>(null);
+  const ring = useRef<Sprite>(null);
+  const tint = useMemo(() => new Color(color), [color]);
+
+  useFrame(({ camera }) => {
+    const t = performance.now() / 1000;
+    const dist = camera.position.length();
+    const base = Math.max(0.045, 0.018 * dist) * (selected ? 1.35 : 1);
+    if (core.current) {
+      const s = base * (1 + Math.sin(t * 2.4) * 0.12);
+      core.current.scale.setScalar(s);
+    }
+    if (ring.current) {
+      const u = (t * 0.55) % 1;
+      ring.current.scale.setScalar(base * (1.2 + u * 2.2));
+      const mat = ring.current.material as SpriteMaterial;
+      mat.opacity = (1 - u) * 0.45;
+    }
+  });
+
+  const pos = useMemo(() => latLngToVector3(lat, lng, MARKER_RADIUS), [lat, lng]);
+
+  return (
+    <group
+      ref={group}
+      position={pos}
+      onClick={(e) => {
+        if (globeInput.movedPx > 6) return;
+        e.stopPropagation();
+        onSelect();
+      }}
+    >
+      <sprite ref={core} renderOrder={2}>
+        <spriteMaterial
+          map={texture}
+          color={tint}
+          transparent
+          depthWrite={false}
+          blending={AdditiveBlending}
+          toneMapped={false}
+        />
+      </sprite>
+      <sprite ref={ring} renderOrder={1}>
+        <spriteMaterial
+          map={texture}
+          color={tint}
+          transparent
+          depthWrite={false}
+          blending={AdditiveBlending}
+          toneMapped={false}
+          opacity={0.4}
+        />
+      </sprite>
+    </group>
+  );
+}
+
+export function Markers() {
+  const custom = useGlobeStore((s) => s.customMarkers);
+  const selected = useGlobeStore((s) => s.selectedMarker);
+  const selectMarker = useGlobeStore((s) => s.selectMarker);
+  const requestFlyTo = useGlobeStore((s) => s.requestFlyTo);
+  const selectCountry = useGlobeStore((s) => s.selectCountry);
+  const showCs2Majors = useGlobeStore((s) => s.showCs2Majors);
+  const cs2Tex = useMemo(() => makeGlowTexture(CS2), []);
+  const pinTex = useMemo(() => makeGlowTexture(CUSTOM), []);
+
+  return (
+    <group>
+      {showCs2Majors
+        ? CS2_MAJORS.map((m) => (
+            <PulseMarker
+              key={m.id}
+              lat={m.lat}
+              lng={m.lng}
+              color={CS2}
+              texture={cs2Tex}
+              selected={selected?.kind === "cs2" && selected.id === m.id}
+              onSelect={() => {
+                selectCountry(null);
+                selectMarker({ kind: "cs2", id: m.id });
+                requestFlyTo(m.lat, m.lng, 1.62);
+              }}
+            />
+          ))
+        : null}
+      {custom.map((m) => (
+        <PulseMarker
+          key={m.id}
+          lat={m.lat}
+          lng={m.lng}
+          color={CUSTOM}
+          texture={pinTex}
+          selected={selected?.kind === "custom" && selected.id === m.id}
+          onSelect={() => {
+            selectCountry(null);
+            selectMarker({ kind: "custom", id: m.id });
+            requestFlyTo(m.lat, m.lng, 1.62);
+          }}
+        />
+      ))}
+    </group>
+  );
+}
