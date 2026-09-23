@@ -1,5 +1,37 @@
 node_modules/
 .project_id
 .github_repo
+
+# Local secrets. `.grok/app-env.json` is a tracked build flag (VITE_*), not a secret.
 .env
 .env.*
+!.env.example
+
+# Vite / Nitro / TanStack / Vercel build output
+dist/
+.output/
+.nitro/
+.vercel/
+.tanstack/
+*.tsbuildinfo
+
+# Local QA dumps and Grok export leftovers (not imported by the app)
+screenshots/**
+!screenshots/.gitkeep
+artifacts/
+attachments/
+
+# Grok agent scratch. Tracked on purpose: `.grok/app-env.json`, `.grok/skills/og/`.
+.grok/preview.pid
+.grok/preview.log
+.grok/og-pending
+.grok/status
+.grok/*.tmp
+.grok/*.jpg
+.grok/*.png
+.grok/*.html
+.node_modules.lock
+
+# OS
+.DS_Store
+*.log
