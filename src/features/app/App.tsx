@@ -1,9 +1,9 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Hud } from "@/components/hud/Hud";
+import { Hud } from "@/features/hud/Hud";
 import { useGlobeStore } from "@/store/globe-store";
 
 const GlobeCanvas = lazy(() =>
-  import("@/components/globe/GlobeCanvas").then((m) => ({ default: m.GlobeCanvas })),
+  import("@/features/globe/GlobeCanvas").then((m) => ({ default: m.GlobeCanvas })),
 );
 
 export function App() {
