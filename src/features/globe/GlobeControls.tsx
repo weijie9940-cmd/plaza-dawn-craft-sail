@@ -196,10 +196,14 @@ export function GlobeControls() {
       vel.current.phi *= decay;
       sph.current.theta += vel.current.theta * dt;
       sph.current.phi += vel.current.phi * dt;
-      const idle = performance.now() - idleAt.current > IDLE_MS;
-      const spinning = Math.abs(vel.current.theta) + Math.abs(vel.current.phi) < 0.02;
-      if (idle && spinning) {
-        sph.current.theta += AUTO_THETA * dt;
+      const { selectedMarker, selectedIso } = useGlobeStore.getState();
+      const cardOpen = selectedMarker != null || selectedIso != null;
+      if (cardOpen) {
+        idleAt.current = performance.now();
+      } else {
+        const idle = performance.now() - idleAt.current > IDLE_MS;
+        const settled = Math.abs(vel.current.theta) + Math.abs(vel.current.phi) < 0.02;
+        if (idle && settled) sph.current.theta += AUTO_THETA * dt;
       }
     }
 

@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { memo, useCallback, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import {
   AdditiveBlending,
@@ -93,13 +93,13 @@ function makeBadgeTexture(n: number) {
   return tex;
 }
 
-function TrophyMarker({
+const TrophyMarker = memo(function TrophyMarker({
   city,
   major,
   selected,
   dimmed,
   highlighted,
-  onSelect,
+  onSelectCity,
   glowTex,
   trophyTex,
   badgeTex,
@@ -109,7 +109,7 @@ function TrophyMarker({
   selected: boolean;
   dimmed: boolean;
   highlighted: boolean;
-  onSelect: () => void;
+  onSelectCity: (city: STierCity) => void;
   glowTex: CanvasTexture;
   trophyTex: CanvasTexture;
   badgeTex: CanvasTexture | null;
@@ -163,7 +163,7 @@ function TrophyMarker({
       onClick={(e) => {
         if (globeInput.movedPx > 6) return;
         e.stopPropagation();
-        onSelect();
+        onSelectCity(city);
       }}
     >
       {holy ? (
@@ -210,16 +210,19 @@ function TrophyMarker({
       ) : null}
     </group>
   );
-}
+});
 
 export function STierMarkers() {
   const visible = useGlobeStore((s) => s.showSTier);
   const year = useGlobeStore((s) => s.sTierYear);
   const selected = useGlobeStore((s) => s.selectedMarker);
   const highlightedTeam = useGlobeStore((s) => s.highlightedTeam);
-  const selectMarker = useGlobeStore((s) => s.selectMarker);
-  const requestFlyTo = useGlobeStore((s) => s.requestFlyTo);
-  const selectCountry = useGlobeStore((s) => s.selectCountry);
+  const onSelectCity = useCallback((city: STierCity) => {
+    const store = useGlobeStore.getState();
+    store.selectCountry(null);
+    store.selectMarker({ kind: "stier", id: city.id });
+    store.requestFlyTo(city.lat, city.lng, 1.62);
+  }, []);
 
   const cities = useMemo(() => citiesUpToYear(year), [year]);
   const majorTex = useMemo(() => makeGlowTexture(MAJOR), []);
@@ -257,11 +260,7 @@ export function STierMarkers() {
             glowTex={major ? majorTex : stierTex}
             trophyTex={major ? majorCup : stierCup}
             badgeTex={city.events.length > 1 ? (badges.get(city.events.length) ?? null) : null}
-            onSelect={() => {
-              selectCountry(null);
-              selectMarker({ kind: "stier", id: city.id });
-              requestFlyTo(city.lat, city.lng, 1.62);
-            }}
+            onSelectCity={onSelectCity}
           />
         );
       })}

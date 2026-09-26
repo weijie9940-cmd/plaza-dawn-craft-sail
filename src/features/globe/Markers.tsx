@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { memo, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import {
   AdditiveBlending,
@@ -34,20 +34,22 @@ function makeGlowTexture(hex: string) {
 const CS2 = "#7dd3fc";
 const CUSTOM = "#e7eef8";
 
-function PulseMarker({
+const PulseMarker = memo(function PulseMarker({
+  id,
+  kind,
   lat,
   lng,
   color,
   texture,
   selected,
-  onSelect,
 }: {
+  id: string;
+  kind: "cs2" | "custom";
   lat: number;
   lng: number;
   color: string;
   texture: CanvasTexture;
   selected: boolean;
-  onSelect: () => void;
 }) {
   const group = useRef<Group>(null);
   const core = useRef<Sprite>(null);
@@ -79,7 +81,10 @@ function PulseMarker({
       onClick={(e) => {
         if (globeInput.movedPx > 6) return;
         e.stopPropagation();
-        onSelect();
+        const store = useGlobeStore.getState();
+        store.selectCountry(null);
+        store.selectMarker({ kind, id });
+        store.requestFlyTo(lat, lng, 1.62);
       }}
     >
       <sprite ref={core} renderOrder={2}>
@@ -105,14 +110,11 @@ function PulseMarker({
       </sprite>
     </group>
   );
-}
+});
 
 export function Markers() {
   const custom = useGlobeStore((s) => s.customMarkers);
   const selected = useGlobeStore((s) => s.selectedMarker);
-  const selectMarker = useGlobeStore((s) => s.selectMarker);
-  const requestFlyTo = useGlobeStore((s) => s.requestFlyTo);
-  const selectCountry = useGlobeStore((s) => s.selectCountry);
   const showCs2Majors = useGlobeStore((s) => s.showCs2Majors);
   const cs2Tex = useMemo(() => makeGlowTexture(CS2), []);
   const pinTex = useMemo(() => makeGlowTexture(CUSTOM), []);
@@ -123,32 +125,26 @@ export function Markers() {
         ? CS2_MAJORS.map((m) => (
             <PulseMarker
               key={m.id}
+              id={m.id}
+              kind="cs2"
               lat={m.lat}
               lng={m.lng}
               color={CS2}
               texture={cs2Tex}
               selected={selected?.kind === "cs2" && selected.id === m.id}
-              onSelect={() => {
-                selectCountry(null);
-                selectMarker({ kind: "cs2", id: m.id });
-                requestFlyTo(m.lat, m.lng, 1.62);
-              }}
             />
           ))
         : null}
       {custom.map((m) => (
         <PulseMarker
           key={m.id}
+          id={m.id}
+          kind="custom"
           lat={m.lat}
           lng={m.lng}
           color={CUSTOM}
           texture={pinTex}
           selected={selected?.kind === "custom" && selected.id === m.id}
-          onSelect={() => {
-            selectCountry(null);
-            selectMarker({ kind: "custom", id: m.id });
-            requestFlyTo(m.lat, m.lng, 1.62);
-          }}
         />
       ))}
     </group>

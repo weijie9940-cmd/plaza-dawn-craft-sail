@@ -1,6 +1,12 @@
+import { useEffect, useRef, useState } from "react";
 import { MapPin, Check, Navigation } from "lucide-react";
 import { COUNTRY_BY_ISO } from "@/data/countries";
 import { CS2_MAJORS } from "@/data/cs2-majors";
+import {
+  MAJOR_TROPHY_PHOTOS,
+  majorEventId,
+  type MajorTrophyPhoto,
+} from "@/data/major-trophy-photos";
 import {
   CHAMPION_LABEL,
   championKey,
@@ -12,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function CountryCard() {
+
   const selectedIso = useGlobeStore((s) => s.selectedIso);
   const selectedMarker = useGlobeStore((s) => s.selectedMarker);
   const visited = useGlobeStore((s) => s.visited);
@@ -23,6 +30,25 @@ export function CountryCard() {
   const sTierYear = useGlobeStore((s) => s.sTierYear);
   const highlightedTeam = useGlobeStore((s) => s.highlightedTeam);
   const setHighlightedTeam = useGlobeStore((s) => s.setHighlightedTeam);
+  const [openMajorId, setOpenMajorId] = useState<string | null>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const stierCityId = selectedMarker?.kind === "stier" ? selectedMarker.id : null;
+
+  useEffect(() => {
+    setOpenMajorId(null);
+  }, [stierCityId]);
+
+  useEffect(() => {
+    if (!highlightedTeam) setOpenMajorId(null);
+  }, [highlightedTeam]);
+
+  useEffect(() => {
+    if (!openMajorId) return;
+    const row = listRef.current?.querySelector<HTMLElement>(
+      `[data-major-id="${CSS.escape(openMajorId)}"]`,
+    );
+    row?.scrollIntoView({ block: "nearest" });
+  }, [openMajorId]);
 
   if (selectedMarker?.kind === "stier") {
     const city = citiesUpToYear(sTierYear).find((m) => m.id === selectedMarker.id);
@@ -41,12 +67,25 @@ export function CountryCard() {
         <p className="mt-1 text-sm text-fg-muted">
           {city.events.length} 场 · {formatCoord(city.lat, city.lng)}
         </p>
-        <ul className="mt-3 max-h-56 space-y-2 overflow-y-auto pr-1">
+        <ul
+          ref={listRef}
+          className={cn(
+            "mt-3 space-y-2 overflow-y-auto pr-1",
+            openMajorId ? "max-h-[28rem]" : "max-h-56",
+          )}
+        >
           {city.events.map((ev) => {
             const key = championKey(ev.champion);
             const active = highlightedTeam === key;
+            const isMajor = ev.tier === "Major";
+            const eventId = isMajor ? majorEventId(ev) : null;
+            const photoOpen = eventId !== null && openMajorId === eventId;
             return (
-              <li key={`${ev.year}-${ev.month}-${ev.name}`} className="text-sm leading-snug">
+              <li
+                key={`${ev.year}-${ev.month}-${ev.name}`}
+                data-major-id={eventId ?? undefined}
+                className="text-sm leading-snug"
+              >
                 <p className="text-fg">
                   <span className="font-mono tabular-nums text-fg-muted">
                     {ev.year}年{ev.month}月
@@ -58,7 +97,19 @@ export function CountryCard() {
                       "rounded-sm px-0.5 font-medium underline-offset-2 hover:underline",
                       active ? "text-marker-major" : "text-fg",
                     )}
-                    onClick={() => setHighlightedTeam(active ? null : key)}
+                    onClick={() => {
+                      if (!isMajor || !eventId) {
+                        setHighlightedTeam(active ? null : key);
+                        return;
+                      }
+                      if (photoOpen) {
+                        setOpenMajorId(null);
+                        setHighlightedTeam(null);
+                        return;
+                      }
+                      setOpenMajorId(eventId);
+                      setHighlightedTeam(key);
+                    }}
                     title="高亮该战队所有夺冠城市"
                   >
                     {ev.champion}
@@ -75,6 +126,13 @@ export function CountryCard() {
                 {ev.note?.includes("级别边缘") ? (
                   <p className="text-xs text-fg-subtle">级别边缘</p>
                 ) : null}
+                {photoOpen && eventId ? (
+                  <MajorTrophyPhoto
+                    photo={MAJOR_TROPHY_PHOTOS[eventId]}
+                    champion={ev.champion}
+                    name={ev.name}
+                  />
+                ) : null}
               </li>
             );
           })}
@@ -85,7 +143,10 @@ export function CountryCard() {
             <button
               type="button"
               className="ml-2 text-fg underline-offset-2 hover:underline"
-              onClick={() => setHighlightedTeam(null)}
+              onClick={() => {
+                setOpenMajorId(null);
+                setHighlightedTeam(null);
+              }}
             >
               清除
             </button>
@@ -205,5 +266,74 @@ export function CountryCard() {
         </Button>
       </div>
     </article>
+  );
+}
+
+function MajorTrophyPhoto({
+  photo,
+  champion,
+  name,
+}: {
+  photo: MajorTrophyPhoto | undefined;
+  champion: string;
+  name: string;
+}) {
+  const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading");
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img?.complete && img.naturalWidth > 0) setPhase("ready");
+  }, [photo?.src]);
+
+  if (!photo) {
+    return <p className="mt-2 text-xs text-fg-subtle">暂无捧杯照片</p>;
+  }
+
+  return (
+    <figure className="mt-2">
+      <div
+        className="relative w-full overflow-hidden rounded-lg bg-surface-2"
+        style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
+      >
+        {phase === "error" ? (
+          <p className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-fg-subtle">
+            暂无捧杯照片
+          </p>
+        ) : (
+          <>
+            {phase === "loading" ? <div className="absolute inset-0 animate-pulse bg-surface-2" aria-hidden /> : null}
+            <img
+              ref={imgRef}
+              src={photo.src}
+              alt={`${champion} 在 ${name} 捧杯`}
+              width={photo.width}
+              height={photo.height}
+              loading="lazy"
+              decoding="async"
+              className={cn("absolute inset-0 h-full w-full object-cover", phase === "loading" && "opacity-0")}
+              onLoad={() => setPhase("ready")}
+              onError={() => setPhase("error")}
+            />
+          </>
+        )}
+      </div>
+      {photo.credit ? (
+        <figcaption className="mt-1 text-xs text-fg-subtle">
+          {photo.sourceUrl ? (
+            <a
+              href={photo.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline-offset-2 hover:underline"
+            >
+              图片来源：{photo.credit}
+            </a>
+          ) : (
+            <>图片来源：{photo.credit}</>
+          )}
+        </figcaption>
+      ) : null}
+    </figure>
   );
 }
