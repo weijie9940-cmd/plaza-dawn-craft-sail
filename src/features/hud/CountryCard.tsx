@@ -15,7 +15,9 @@ import {
 import { formatCoord } from "@/lib/geo";
 import { useGlobeStore } from "@/store/globe-store";
 import { Button } from "@/components/ui/button";
+import { CS2_MAJOR_EVENT_IDS, eventMvpWithPhoto } from "@/data/event-mvps";
 import { cn } from "@/lib/utils";
+import { EventMvp } from "./EventMvp";
 
 export function CountryCard() {
 
@@ -31,12 +33,20 @@ export function CountryCard() {
   const highlightedTeam = useGlobeStore((s) => s.highlightedTeam);
   const setHighlightedTeam = useGlobeStore((s) => s.setHighlightedTeam);
   const [openMajorId, setOpenMajorId] = useState<string | null>(null);
+  const [openMvpId, setOpenMvpId] = useState<string | null>(null);
+  const [openCs2Mvp, setOpenCs2Mvp] = useState<string | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const stierCityId = selectedMarker?.kind === "stier" ? selectedMarker.id : null;
+  const cs2CityId = selectedMarker?.kind === "cs2" ? selectedMarker.id : null;
 
   useEffect(() => {
     setOpenMajorId(null);
+    setOpenMvpId(null);
   }, [stierCityId]);
+
+  useEffect(() => {
+    setOpenCs2Mvp(null);
+  }, [cs2CityId]);
 
   useEffect(() => {
     if (!highlightedTeam) setOpenMajorId(null);
@@ -72,7 +82,9 @@ export function CountryCard() {
           ref={listRef}
           className={cn(
             "mt-3 space-y-2 overflow-y-auto pr-1",
-            openMajorId ? "max-h-[28rem]" : "max-h-56",
+            openMajorId || openMvpId
+              ? "max-h-[max(8rem,min(28rem,calc(100dvh-34.75rem)))] sm:max-h-[max(8rem,min(28rem,calc(100dvh-33.5rem)))]"
+              : "max-h-[max(8rem,min(14rem,calc(100dvh-34.75rem)))] sm:max-h-[max(8rem,min(14rem,calc(100dvh-33.5rem)))]",
           )}
         >
           {city.events.map((ev) => {
@@ -81,6 +93,9 @@ export function CountryCard() {
             const isMajor = ev.tier === "Major";
             const eventId = isMajor ? majorEventId(ev) : null;
             const photoOpen = eventId !== null && openMajorId === eventId;
+            const evId = majorEventId(ev);
+            const mvp = eventMvpWithPhoto(evId);
+            const mvpOpen = mvp !== null && openMvpId === evId;
             return (
               <li
                 key={`${ev.year}-${ev.month}-${ev.name}`}
@@ -116,9 +131,23 @@ export function CountryCard() {
                     {ev.champion}
                   </button>
                 </p>
-                <p className="mt-0.5 text-sm text-fg-muted" title={ev.name}>
-                  {ev.name}
-                </p>
+                {mvp ? (
+                  <button
+                    type="button"
+                    className="mt-0.5 block text-left text-sm text-fg-muted underline-offset-2 hover:text-fg hover:underline"
+                    aria-expanded={mvpOpen}
+                    aria-controls={`event-mvp-${evId}`}
+                    title="查看本场 MVP"
+                    onClick={() => setOpenMvpId(mvpOpen ? null : evId)}
+                  >
+                    {ev.name}
+                    <span className="ml-1 text-xs text-marker-major">MVP</span>
+                  </button>
+                ) : (
+                  <p className="mt-0.5 text-sm text-fg-muted" title={ev.name}>
+                    {ev.name}
+                  </p>
+                )}
                 <p className="mt-0.5 text-xs text-fg-subtle">
                   {ev.tier === "Major" ? "Major" : "S 级"}
                   {" · "}
@@ -134,6 +163,11 @@ export function CountryCard() {
                     champion={ev.champion}
                     name={ev.name}
                   />
+                ) : null}
+                {mvpOpen && mvp ? (
+                  <div id={`event-mvp-${evId}`}>
+                    <EventMvp mvpId={mvp.id} team={mvp.team} src={mvp.src} eventName={ev.name} />
+                  </div>
                 ) : null}
               </li>
             );
@@ -154,7 +188,7 @@ export function CountryCard() {
             </button>
           </p>
         ) : (
-          <p className="mt-3 text-xs text-fg-subtle">点击战队名，查看其夺冠版图</p>
+          <p className="mt-3 text-xs text-fg-subtle">点击战队名查看夺冠版图，点击赛事名查看 MVP</p>
         )}
         <div className="mt-4 flex gap-2">
           <Button size="sm" variant="secondary" onClick={() => requestFlyTo(city.lat, city.lng, 1.62)}>
@@ -181,14 +215,40 @@ export function CountryCard() {
           {city.countryZh} · {formatCoord(city.lat, city.lng)}
         </p>
         <ul className="mt-3 space-y-1.5">
-          {city.events.map((ev) => (
-            <li key={`${ev.year}-${ev.name}`} className="flex justify-between gap-3 text-sm">
-              <span className="min-w-0 text-fg" title={ev.name}>
-                {ev.year} {ev.name}
-              </span>
-              <span className="shrink-0 text-fg-muted">{ev.winner}</span>
-            </li>
-          ))}
+          {city.events.map((ev) => {
+            const evId = CS2_MAJOR_EVENT_IDS[`${ev.year}|${ev.name}`];
+            const mvp = eventMvpWithPhoto(evId);
+            const mvpOpen = mvp !== null && openCs2Mvp === evId;
+            return (
+              <li key={`${ev.year}-${ev.name}`} className="text-sm">
+                <div className="flex justify-between gap-3">
+                  {mvp ? (
+                    <button
+                      type="button"
+                      className="min-w-0 text-left text-sm text-fg underline-offset-2 hover:underline"
+                      aria-expanded={mvpOpen}
+                      aria-controls={`event-mvp-${evId}`}
+                      title="查看本场 MVP"
+                      onClick={() => setOpenCs2Mvp(mvpOpen ? null : evId)}
+                    >
+                      {ev.year} {ev.name}
+                      <span className="ml-1 text-xs text-marker-major">MVP</span>
+                    </button>
+                  ) : (
+                    <span className="min-w-0 text-fg" title={ev.name}>
+                      {ev.year} {ev.name}
+                    </span>
+                  )}
+                  <span className="shrink-0 text-fg-muted">{ev.winner}</span>
+                </div>
+                {mvpOpen && mvp ? (
+                  <div id={`event-mvp-${evId}`}>
+                    <EventMvp mvpId={mvp.id} team={mvp.team} src={mvp.src} eventName={ev.name} />
+                  </div>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
         <div className="mt-4 flex gap-2">
           <Button size="sm" variant="secondary" onClick={() => requestFlyTo(city.lat, city.lng, 1.62)}>
