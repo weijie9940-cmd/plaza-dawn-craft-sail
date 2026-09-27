@@ -1,4 +1,5 @@
-import { Globe2, Grid3x3, List, MapPinPlus, Medal, Trophy } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Globe2, Grid3x3, List, MapPinPlus, Medal, Sun, Trophy } from "lucide-react";
 import { COUNTRY_BY_ISO, COUNTRY_COUNT } from "@/data/countries";
 import { STIER_SOURCE } from "@/data/s-tier-events";
 import { useGlobeStore } from "@/store/globe-store";
@@ -18,11 +19,13 @@ export function Hud() {
   const showGraticule = useGlobeStore((s) => s.showGraticule);
   const showCs2Majors = useGlobeStore((s) => s.showCs2Majors);
   const showSTier = useGlobeStore((s) => s.showSTier);
+  const showDaylight = useGlobeStore((s) => s.showDaylight);
   const pinMode = useGlobeStore((s) => s.pinMode);
   const visited = useGlobeStore((s) => s.visited);
   const setShowGraticule = useGlobeStore((s) => s.setShowGraticule);
   const setShowCs2Majors = useGlobeStore((s) => s.setShowCs2Majors);
   const setShowSTier = useGlobeStore((s) => s.setShowSTier);
+  const setShowDaylight = useGlobeStore((s) => s.setShowDaylight);
   const setPinMode = useGlobeStore((s) => s.setPinMode);
   const setPanelOpen = useGlobeStore((s) => s.setPanelOpen);
   const panelOpen = useGlobeStore((s) => s.panelOpen);
@@ -45,8 +48,8 @@ export function Hud() {
             size="icon"
             variant={showSTier ? "secondary" : "ghost"}
             aria-pressed={showSTier}
-            aria-label="S 级赛事图层"
-            title="S 级赛事冠军地图"
+            aria-label="S 级赛事城市与 Major 冠军所在城市"
+            title="S 级赛事城市与 Major 冠军所在城市"
             className={cn(showSTier && "text-marker-major")}
             onClick={() => setShowSTier(!showSTier)}
           >
@@ -56,8 +59,8 @@ export function Hud() {
             size="icon"
             variant={showCs2Majors ? "secondary" : "ghost"}
             aria-pressed={showCs2Majors}
-            aria-label="CS Major 图层"
-            title="CS Major"
+            aria-label="历届 Major 举办城市"
+            title="历届 Major 举办城市"
             className={cn("hidden sm:inline-flex", showCs2Majors && "text-accent")}
             onClick={() => setShowCs2Majors(!showCs2Majors)}
           >
@@ -73,6 +76,17 @@ export function Hud() {
             onClick={() => setShowGraticule(!showGraticule)}
           >
             <Grid3x3 className="size-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant={showDaylight ? "secondary" : "ghost"}
+            aria-pressed={showDaylight}
+            aria-label="日照"
+            title="日照"
+            className={cn("hidden sm:inline-flex", showDaylight && "text-marker-major")}
+            onClick={() => setShowDaylight(!showDaylight)}
+          >
+            <Sun className="size-4" />
           </Button>
           <Button
             size="icon"
@@ -129,28 +143,29 @@ export function Hud() {
                 {visited.length}/{COUNTRY_COUNT}
               </span>
             </p>
+            <UtcReadout />
           </div>
           <ul className="hidden items-center gap-4 text-xs text-fg-muted lg:flex">
             {showSTier ? (
               <>
                 <li className="flex items-center gap-1.5">
-                  <span className="size-1.5 rounded-full bg-marker-major" />
-                  Major
+                  <TrophyGlyph className="text-marker-major" />
+                  Major 冠军所在城市
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <span className="size-1.5 rounded-full bg-marker-stier" />
-                  S 级
+                  <TrophyGlyph className="text-marker-stier" />
+                  S 级赛事城市
                 </li>
               </>
             ) : null}
             {showCs2Majors ? (
               <li className="flex items-center gap-1.5">
-                <span className="size-1.5 rounded-full bg-marker-cs2" />
-                CS Major 史
+                <PulseGlyph className="bg-marker-cs2" />
+                历届 Major 举办城市
               </li>
             ) : null}
             <li className="flex items-center gap-1.5">
-              <span className="size-1.5 rounded-full bg-marker-pin" />
+              <PulseGlyph className="bg-marker-pin" />
               我的标记
             </li>
           </ul>
@@ -176,5 +191,50 @@ export function Hud() {
         </div>
       ) : null}
     </div>
+  );
+}
+
+function formatUtc(date: Date) {
+  const h = String(date.getUTCHours()).padStart(2, "0");
+  const m = String(date.getUTCMinutes()).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+function UtcReadout() {
+  const [label, setLabel] = useState<string | null>(null);
+  useEffect(() => {
+    const tick = () => setLabel(formatUtc(new Date()));
+    tick();
+    const timer = window.setInterval(tick, 60_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") tick();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, []);
+  if (!label) return null;
+  return <p className="font-mono text-xs text-fg-muted">UTC {label}</p>;
+}
+
+function TrophyGlyph({ className }: { className: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={cn("size-3.5 shrink-0", className)} aria-hidden>
+      <path
+        fill="currentColor"
+        d="M8 3h8v2h2.4c.5 0 .8.5.6 1C18.4 8.6 16.7 10.2 14.8 10.7 14.3 12.1 13.3 13 12 13.2V16h2.5v1.8h-5V16H12v-2.8c-1.3-.2-2.3-1.1-2.8-2.5C7.3 10.2 5.6 8.6 5 6c-.2-.5.1-1 .6-1H8V3z"
+      />
+    </svg>
+  );
+}
+
+function PulseGlyph({ className }: { className: string }) {
+  return (
+    <span className="relative inline-flex size-3.5 shrink-0 items-center justify-center" aria-hidden>
+      <span className={cn("absolute size-3 rounded-full opacity-45 blur-[2px]", className)} />
+      <span className={cn("size-1.5 rounded-full", className)} />
+    </span>
   );
 }

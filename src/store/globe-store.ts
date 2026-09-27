@@ -23,6 +23,7 @@ type GlobeState = {
   showGraticule: boolean;
   showCs2Majors: boolean;
   showSTier: boolean;
+  showDaylight: boolean;
   sTierYear: number;
   highlightedTeam: string | null;
   pinMode: boolean;
@@ -39,6 +40,7 @@ type GlobeState = {
   setShowGraticule: (v: boolean) => void;
   setShowCs2Majors: (v: boolean) => void;
   setShowSTier: (v: boolean) => void;
+  setShowDaylight: (v: boolean) => void;
   setSTierYear: (year: number) => void;
   setHighlightedTeam: (team: string | null) => void;
   setPinMode: (v: boolean) => void;
@@ -64,6 +66,7 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
   showGraticule: false,
   showCs2Majors: true,
   showSTier: true,
+  showDaylight: true,
   sTierYear: STIER_YEAR_MAX,
   highlightedTeam: null,
   pinMode: false,
@@ -83,6 +86,7 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
   setTexturesReady: (v) => set({ texturesReady: v }),
   setShowGraticule: (v) => set({ showGraticule: v }),
   setShowCs2Majors: (v) => set({ showCs2Majors: v }),
+  setShowDaylight: (v) => set({ showDaylight: v }),
   setShowSTier: (v) =>
     set({
       showSTier: v,
@@ -99,6 +103,7 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
     set({
       sTierYear: year,
       selectedMarker: keep ? selected : null,
+      highlightedTeam: keep ? get().highlightedTeam : null,
     });
   },
   setHighlightedTeam: (team) => set({ highlightedTeam: team }),
@@ -157,5 +162,7 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
       selectedIso: null,
       selectedMarker: null,
       pendingPin: null,
+      hoveredIso: null,
+      highlightedTeam: null,
     }),
 }));

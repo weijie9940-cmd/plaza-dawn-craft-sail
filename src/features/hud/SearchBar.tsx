@@ -45,6 +45,7 @@ export function SearchBar() {
     requestFlyTo(c.lat, c.lng, 1.82);
     setQuery(c.nameZh);
     setOpen(false);
+    input.current?.blur();
   };
 
   return (
@@ -59,7 +60,11 @@ export function SearchBar() {
             setOpen(true);
             setActive(0);
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={(e) => {
+            setOpen(true);
+            const el = e.currentTarget;
+            setTimeout(() => el.select(), 0);
+          }}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {
               e.preventDefault();

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { BufferAttribute, BufferGeometry } from "three";
 import { GRATICULE_RADIUS, latLngToVector3 } from "@/lib/geo";
 import { useGlobeStore } from "@/store/globe-store";
+import { horizonCullCacheKey, horizonCullOnBeforeCompile } from "./horizon-cull";
 
 export function Graticule() {
   const show = useGlobeStore((s) => s.showGraticule);
@@ -32,7 +33,15 @@ export function Graticule() {
 
   return (
     <lineSegments geometry={geometry} frustumCulled={false}>
-      <lineBasicMaterial color="#8fb6d6" transparent opacity={0.28} depthWrite={false} depthTest={false} />
+      <lineBasicMaterial
+        color="#8fb6d6"
+        transparent
+        opacity={0.28}
+        depthWrite={false}
+        depthTest={false}
+        onBeforeCompile={horizonCullOnBeforeCompile}
+        customProgramCacheKey={horizonCullCacheKey}
+      />
     </lineSegments>
   );
 }

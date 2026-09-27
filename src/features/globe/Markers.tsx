@@ -11,6 +11,7 @@ import {
 import { CS2_MAJORS } from "@/data/cs2-majors";
 import { MARKER_RADIUS, latLngToVector3 } from "@/lib/geo";
 import { useGlobeStore } from "@/store/globe-store";
+import { horizonCullCacheKey, horizonCullOnBeforeCompile, isFrontHemisphere } from "./horizon-cull";
 import { globeInput } from "./input-state";
 
 function makeGlowTexture(hex: string) {
@@ -80,6 +81,7 @@ const PulseMarker = memo(function PulseMarker({
       position={pos}
       onClick={(e) => {
         if (globeInput.movedPx > 6) return;
+        if (!isFrontHemisphere(lat, lng, e.camera.position)) return;
         e.stopPropagation();
         const store = useGlobeStore.getState();
         store.selectCountry(null);
@@ -93,6 +95,8 @@ const PulseMarker = memo(function PulseMarker({
           color={tint}
           transparent
           depthWrite={false}
+          onBeforeCompile={horizonCullOnBeforeCompile}
+          customProgramCacheKey={horizonCullCacheKey}
           blending={AdditiveBlending}
           toneMapped={false}
         />
@@ -103,6 +107,8 @@ const PulseMarker = memo(function PulseMarker({
           color={tint}
           transparent
           depthWrite={false}
+          onBeforeCompile={horizonCullOnBeforeCompile}
+          customProgramCacheKey={horizonCullCacheKey}
           blending={AdditiveBlending}
           toneMapped={false}
           opacity={0.4}

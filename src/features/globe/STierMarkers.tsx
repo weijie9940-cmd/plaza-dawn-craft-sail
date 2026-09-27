@@ -14,6 +14,7 @@ import {
 } from "@/data/s-tier-events";
 import { MARKER_RADIUS, latLngToVector3 } from "@/lib/geo";
 import { useGlobeStore } from "@/store/globe-store";
+import { horizonCullCacheKey, horizonCullOnBeforeCompile, isFrontHemisphere } from "./horizon-cull";
 import { globeInput } from "./input-state";
 
 const MAJOR = "#e8c872";
@@ -162,6 +163,7 @@ const TrophyMarker = memo(function TrophyMarker({
       position={pos}
       onClick={(e) => {
         if (globeInput.movedPx > 6) return;
+        if (!isFrontHemisphere(city.lat, city.lng, e.camera.position)) return;
         e.stopPropagation();
         onSelectCity(city);
       }}
@@ -173,6 +175,8 @@ const TrophyMarker = memo(function TrophyMarker({
             color={tint}
             transparent
             depthWrite={false}
+          onBeforeCompile={horizonCullOnBeforeCompile}
+          customProgramCacheKey={horizonCullCacheKey}
             blending={AdditiveBlending}
             toneMapped={false}
             opacity={0.28}
@@ -185,6 +189,8 @@ const TrophyMarker = memo(function TrophyMarker({
           color={tint}
           transparent
           depthWrite={false}
+          onBeforeCompile={horizonCullOnBeforeCompile}
+          customProgramCacheKey={horizonCullCacheKey}
           blending={AdditiveBlending}
           toneMapped={false}
           opacity={0.4}
@@ -196,16 +202,32 @@ const TrophyMarker = memo(function TrophyMarker({
           color={tint}
           transparent
           depthWrite={false}
+          onBeforeCompile={horizonCullOnBeforeCompile}
+          customProgramCacheKey={horizonCullCacheKey}
           blending={AdditiveBlending}
           toneMapped={false}
         />
       </sprite>
       <sprite ref={cup} renderOrder={4}>
-        <spriteMaterial map={trophyTex} transparent depthWrite={false} toneMapped={false} />
+        <spriteMaterial
+          map={trophyTex}
+          transparent
+          depthWrite={false}
+          toneMapped={false}
+          onBeforeCompile={horizonCullOnBeforeCompile}
+          customProgramCacheKey={horizonCullCacheKey}
+        />
       </sprite>
       {badgeTex ? (
         <sprite ref={badge} renderOrder={5} position={[0.018, 0.018, 0.018]}>
-          <spriteMaterial map={badgeTex} transparent depthWrite={false} toneMapped={false} />
+          <spriteMaterial
+            map={badgeTex}
+            transparent
+            depthWrite={false}
+            toneMapped={false}
+            onBeforeCompile={horizonCullOnBeforeCompile}
+            customProgramCacheKey={horizonCullCacheKey}
+          />
         </sprite>
       ) : null}
     </group>

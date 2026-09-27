@@ -4,6 +4,7 @@ import { geoContains } from "d3-geo";
 import { BufferAttribute, BufferGeometry, DoubleSide, Vector3 } from "three";
 import { BORDER_RADIUS, FILL_RADIUS, latLngToVector3 } from "@/lib/geo";
 import { useGlobeStore } from "@/store/globe-store";
+import { horizonCullCacheKey, horizonCullOnBeforeCompile } from "./horizon-cull";
 
 export type WorldFeature = {
   iso: string;
@@ -44,6 +45,19 @@ function pushLine(positions: number[], ring: number[][], radius: number) {
 
 function ringsOf(f: WorldFeature): number[][][][] {
   return f.type === "Polygon" ? [f.coordinates as number[][][]] : (f.coordinates as number[][][][]);
+}
+
+function outlineGeometry(features: WorldFeature[], radius: number): BufferGeometry | null {
+  const positions: number[] = [];
+  for (const f of features) {
+    for (const poly of ringsOf(f)) {
+      for (const ring of poly) pushLine(positions, ring, radius);
+    }
+  }
+  if (!positions.length) return null;
+  const geo = new BufferGeometry();
+  geo.setAttribute("position", new BufferAttribute(new Float32Array(positions), 3));
+  return geo;
 }
 
 function fillGeometry(features: WorldFeature[], radius: number): BufferGeometry | null {
@@ -131,26 +145,40 @@ export function GeoLayer() {
     );
   }, [world, visited]);
 
-  const hoverGeo = useMemo(() => {
+  const hoverFeatures = useMemo(() => {
     if (!world || !hoveredIso || hoveredIso === selectedIso) return null;
-    return fillGeometry(
-      world.filter((f) => f.iso === hoveredIso),
-      FILL_RADIUS,
-    );
+    return world.filter((f) => f.iso === hoveredIso);
   }, [world, hoveredIso, selectedIso]);
 
-  const selectedGeo = useMemo(() => {
+  const selectedFeatures = useMemo(() => {
     if (!world || !selectedIso) return null;
-    return fillGeometry(
-      world.filter((f) => f.iso === selectedIso),
-      FILL_RADIUS,
-    );
+    return world.filter((f) => f.iso === selectedIso);
   }, [world, selectedIso]);
+
+  const hoverGeo = useMemo(
+    () => (hoverFeatures ? fillGeometry(hoverFeatures, FILL_RADIUS) : null),
+    [hoverFeatures],
+  );
+  const hoverLine = useMemo(
+    () => (hoverFeatures ? outlineGeometry(hoverFeatures, 1.007) : null),
+    [hoverFeatures],
+  );
+
+  const selectedGeo = useMemo(
+    () => (selectedFeatures ? fillGeometry(selectedFeatures, FILL_RADIUS) : null),
+    [selectedFeatures],
+  );
+  const selectedLine = useMemo(
+    () => (selectedFeatures ? outlineGeometry(selectedFeatures, 1.009) : null),
+    [selectedFeatures],
+  );
 
   useDisposableGeo(borderGeo);
   useDisposableGeo(visitedGeo);
   useDisposableGeo(hoverGeo);
+  useDisposableGeo(hoverLine);
   useDisposableGeo(selectedGeo);
+  useDisposableGeo(selectedLine);
 
   return (
     <group>
@@ -162,6 +190,8 @@ export function GeoLayer() {
             opacity={0.72}
             depthWrite={false}
             depthTest={false}
+            onBeforeCompile={horizonCullOnBeforeCompile}
+            customProgramCacheKey={horizonCullCacheKey}
           />
         </lineSegments>
       ) : null}
@@ -173,6 +203,8 @@ export function GeoLayer() {
             opacity={0.28}
             depthWrite={false}
             depthTest={false}
+            onBeforeCompile={horizonCullOnBeforeCompile}
+            customProgramCacheKey={horizonCullCacheKey}
             side={DoubleSide}
             toneMapped={false}
           />
@@ -183,26 +215,56 @@ export function GeoLayer() {
           <meshBasicMaterial
             color="#cfe6f6"
             transparent
-            opacity={0.22}
+            opacity={0.08}
             depthWrite={false}
             depthTest={false}
+            onBeforeCompile={horizonCullOnBeforeCompile}
+            customProgramCacheKey={horizonCullCacheKey}
             side={DoubleSide}
             toneMapped={false}
           />
         </mesh>
+      ) : null}
+      {hoverLine ? (
+        <lineSegments geometry={hoverLine} frustumCulled={false}>
+          <lineBasicMaterial
+            color="#cfe6f6"
+            transparent
+            opacity={0.72}
+            depthWrite={false}
+            depthTest={false}
+            onBeforeCompile={horizonCullOnBeforeCompile}
+            customProgramCacheKey={horizonCullCacheKey}
+          />
+        </lineSegments>
       ) : null}
       {selectedGeo ? (
         <mesh geometry={selectedGeo} frustumCulled={false}>
           <meshBasicMaterial
             color="#8ec8ea"
             transparent
-            opacity={0.38}
+            opacity={0.58}
             depthWrite={false}
             depthTest={false}
+            onBeforeCompile={horizonCullOnBeforeCompile}
+            customProgramCacheKey={horizonCullCacheKey}
             side={DoubleSide}
             toneMapped={false}
           />
         </mesh>
+      ) : null}
+      {selectedLine ? (
+        <lineSegments geometry={selectedLine} frustumCulled={false}>
+          <lineBasicMaterial
+            color="#f4fbff"
+            transparent
+            opacity={0.95}
+            depthWrite={false}
+            depthTest={false}
+            onBeforeCompile={horizonCullOnBeforeCompile}
+            customProgramCacheKey={horizonCullCacheKey}
+          />
+        </lineSegments>
       ) : null}
     </group>
   );

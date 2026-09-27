@@ -85,6 +85,8 @@ export function GlobeControls() {
       if (pointers.current.size === 2) {
         globeInput.pinching = true;
         globeInput.dragging = true;
+        const store = useGlobeStore.getState();
+        if (store.hoveredIso) store.setHoveredIso(null);
         const [a, b] = [...pointers.current.values()];
         pinchStart.current = Math.hypot(a.x - b.x, a.y - b.y);
         pinchRadius.current = sph.current.radius;
@@ -117,6 +119,8 @@ export function GlobeControls() {
       globeInput.movedPx += Math.hypot(dx, dy);
       if (globeInput.movedPx > 5 && !globeInput.dragging) {
         globeInput.dragging = true;
+        const store = useGlobeStore.getState();
+        if (store.hoveredIso) store.setHoveredIso(null);
         try {
           el.setPointerCapture(e.pointerId);
         } catch {
@@ -183,6 +187,7 @@ export function GlobeControls() {
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.1);
     const anim = fly.current;
+    let unattended = false;
     if (anim) {
       anim.t += dt;
       const u = easeInOutCubic(Math.min(1, anim.t / anim.dur));
@@ -190,7 +195,9 @@ export function GlobeControls() {
       sph.current.phi = anim.fromPhi + (anim.toPhi - anim.fromPhi) * u;
       sph.current.theta = anim.fromTheta + (anim.toTheta - anim.fromTheta) * u;
       if (u >= 1) fly.current = null;
+      unattended = true;
     } else if (!globeInput.dragging && !globeInput.pinching) {
+      const coasting = Math.abs(vel.current.theta) + Math.abs(vel.current.phi) > 0.002;
       const decay = Math.exp(-DAMP * dt);
       vel.current.theta *= decay;
       vel.current.phi *= decay;
@@ -198,13 +205,22 @@ export function GlobeControls() {
       sph.current.phi += vel.current.phi * dt;
       const { selectedMarker, selectedIso } = useGlobeStore.getState();
       const cardOpen = selectedMarker != null || selectedIso != null;
+      let spinning = false;
       if (cardOpen) {
         idleAt.current = performance.now();
       } else {
         const idle = performance.now() - idleAt.current > IDLE_MS;
         const settled = Math.abs(vel.current.theta) + Math.abs(vel.current.phi) < 0.02;
-        if (idle && settled) sph.current.theta += AUTO_THETA * dt;
+        if (idle && settled) {
+          sph.current.theta += AUTO_THETA * dt;
+          spinning = true;
+        }
       }
+      unattended = coasting || spinning;
+    }
+    if (unattended && performance.now() - globeInput.pointerAt > 100) {
+      const store = useGlobeStore.getState();
+      if (store.hoveredIso) store.setHoveredIso(null);
     }
 
     sph.current.phi = Math.min(PHI_MAX, Math.max(PHI_MIN, sph.current.phi));

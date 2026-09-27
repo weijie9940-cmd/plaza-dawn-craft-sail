@@ -7,6 +7,7 @@ import {
   citiesUpToYear,
   countEventsUpToYear,
 } from "@/data/s-tier-events";
+import { countMajorsUpToYear } from "@/lib/s-tier-stats";
 import { useGlobeStore } from "@/store/globe-store";
 
 const YEARS = Array.from(
@@ -21,6 +22,7 @@ export function YearSlider() {
   const highlightedTeam = useGlobeStore((s) => s.highlightedTeam);
   const setHighlightedTeam = useGlobeStore((s) => s.setHighlightedTeam);
   const count = countEventsUpToYear(year);
+  const majors = countMajorsUpToYear(year);
   const dynastyCities = highlightedTeam
     ? citiesUpToYear(year).filter((c) =>
         c.events.some((ev) => championKey(ev.champion) === highlightedTeam),
@@ -34,7 +36,7 @@ export function YearSlider() {
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-xs font-medium tracking-wide text-fg-muted">电竞版图</p>
         <p className="font-mono text-xs tabular-nums text-fg-muted">
-          {STIER_YEAR_MIN}–{year} · {count} 场
+          {STIER_YEAR_MIN}–{year} · {count} 场 S 级赛事 · 含 {majors} 场 Major
         </p>
       </div>
       {highlightedTeam ? (

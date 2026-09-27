@@ -28,7 +28,13 @@ export function GlobePicker() {
   useEffect(() => {
     const el = gl.domElement;
 
+    const clearHover = () => {
+      const store = useGlobeStore.getState();
+      if (store.hoveredIso) store.setHoveredIso(null);
+    };
+
     const onMove = (e: PointerEvent) => {
+      globeInput.pointerAt = performance.now();
       if (globeInput.dragging || globeInput.pinching) return;
       const pt = intersectGlobe(camera, e.clientX, e.clientY, el);
       const store = useGlobeStore.getState();
@@ -68,9 +74,11 @@ export function GlobePicker() {
 
     el.addEventListener("pointermove", onMove);
     el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointerleave", clearHover);
     return () => {
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointerleave", clearHover);
     };
   }, [camera, gl]);
 

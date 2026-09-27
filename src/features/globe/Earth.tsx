@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useFrame, useLoader } from "@react-three/fiber";
+import { useLoader } from "@react-three/fiber";
 import {
   BackSide,
   Color,
   FrontSide,
   ShaderMaterial,
+  NoColorSpace,
+  Texture,
   TextureLoader,
   Vector3,
-  SRGBColorSpace,
 } from "three";
 import { EARTH_RADIUS } from "@/lib/geo";
 import { getSunDirection } from "@/lib/sun";
@@ -20,6 +21,15 @@ import {
 } from "./shaders";
 
 const sunDir = new Vector3();
+const daylightUniform = { value: 1 };
+
+function markPassthrough(map: Texture) {
+  map.anisotropy = 4;
+  if (map.userData.passthrough) return;
+  map.colorSpace = NoColorSpace;
+  map.needsUpdate = true;
+  map.userData.passthrough = true;
+}
 
 export function Earth() {
   const dayMap = useLoader(TextureLoader, "/textures/earth-day.jpg");
@@ -27,28 +37,51 @@ export function Earth() {
   const matRef = useRef<ShaderMaterial>(null);
   const setReady = useGlobeStore((s) => s.setTexturesReady);
 
-  useEffect(() => {
-    dayMap.colorSpace = SRGBColorSpace;
-    nightMap.colorSpace = SRGBColorSpace;
-    dayMap.anisotropy = 4;
-    nightMap.anisotropy = 4;
-    setReady(true);
-  }, [dayMap, nightMap, setReady]);
+  markPassthrough(dayMap);
+  markPassthrough(nightMap);
+  daylightUniform.value = useGlobeStore.getState().showDaylight ? 1 : 0;
 
   const uniforms = useMemo(
     () => ({
       dayMap: { value: dayMap },
       nightMap: { value: nightMap },
       sunDirection: { value: getSunDirection(new Date(), sunDir) },
+      daylight: daylightUniform,
     }),
     [dayMap, nightMap],
   );
 
-  useFrame(() => {
-    if (!matRef.current) return;
-    getSunDirection(new Date(), sunDir);
-    matRef.current.uniforms.sunDirection.value.copy(sunDir);
-  });
+  useEffect(() => {
+    setReady(true);
+  }, [dayMap, nightMap, setReady]);
+
+  useEffect(() => {
+    const applySun = () => {
+      const mat = matRef.current;
+      if (!mat) return;
+      getSunDirection(new Date(), sunDir);
+      mat.uniforms.daylight.value = useGlobeStore.getState().showDaylight ? 1 : 0;
+    };
+    applySun();
+    const timer = window.setInterval(applySun, 60_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") applySun();
+    };
+    let prevDaylight = useGlobeStore.getState().showDaylight;
+    const unsub = useGlobeStore.subscribe((state) => {
+      if (state.showDaylight === prevDaylight) return;
+      prevDaylight = state.showDaylight;
+      const mat = matRef.current;
+      if (!mat) return;
+      mat.uniforms.daylight.value = state.showDaylight ? 1 : 0;
+    });
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      unsub();
+    };
+  }, []);
 
   const segs = 64;
 
@@ -75,6 +108,8 @@ function Atmosphere() {
       glowColor: { value: new Color("#7eb8e8") },
       intensity: { value: 0.85 },
       power: { value: 2.6 },
+      sunDirection: { value: sunDir },
+      daylight: daylightUniform,
     }),
     [],
   );
@@ -83,6 +118,8 @@ function Atmosphere() {
       glowColor: { value: new Color("#4d8fd6") },
       intensity: { value: 1.15 },
       power: { value: 3.4 },
+      sunDirection: { value: sunDir },
+      daylight: daylightUniform,
     }),
     [],
   );
