@@ -7,6 +7,7 @@ import {
   Group,
   Sprite,
   SpriteMaterial,
+  type PerspectiveCamera,
 } from "three";
 import { CS2_MAJORS } from "@/data/cs2-majors";
 import { MARKER_RADIUS, latLngToVector3 } from "@/lib/geo";
@@ -55,9 +56,10 @@ const PulseMarker = memo(function PulseMarker({
   const group = useRef<Group>(null);
   const core = useRef<Sprite>(null);
   const ring = useRef<Sprite>(null);
+  const hit = useRef<Sprite>(null);
   const tint = useMemo(() => new Color(color), [color]);
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera, size }) => {
     const t = performance.now() / 1000;
     const dist = camera.position.length();
     const base = Math.max(0.045, 0.018 * dist) * (selected ? 1.35 : 1);
@@ -71,6 +73,12 @@ const PulseMarker = memo(function PulseMarker({
       const mat = ring.current.material as SpriteMaterial;
       mat.opacity = (1 - u) * 0.45;
     }
+    if (hit.current) {
+      const fov = ((camera as PerspectiveCamera).fov * Math.PI) / 180;
+      const world =
+        (28 / Math.max(size.height, 1)) * 2 * Math.tan(fov / 2) * Math.max(dist, 1.2);
+      hit.current.scale.setScalar(Math.max(world, base * 1.8));
+    }
   });
 
   const pos = useMemo(() => latLngToVector3(lat, lng, MARKER_RADIUS), [lat, lng]);
@@ -80,7 +88,7 @@ const PulseMarker = memo(function PulseMarker({
       ref={group}
       position={pos}
       onClick={(e) => {
-        if (globeInput.movedPx > 6) return;
+        if (globeInput.movedPx >= 5) return;
         if (!isFrontHemisphere(lat, lng, e.camera.position)) return;
         e.stopPropagation();
         const store = useGlobeStore.getState();
@@ -89,6 +97,9 @@ const PulseMarker = memo(function PulseMarker({
         store.requestFlyTo(lat, lng, 1.62);
       }}
     >
+      <sprite ref={hit} renderOrder={3}>
+        <spriteMaterial transparent opacity={0} depthWrite={false} depthTest={false} />
+      </sprite>
       <sprite ref={core} renderOrder={2}>
         <spriteMaterial
           map={texture}

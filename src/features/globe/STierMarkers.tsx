@@ -6,6 +6,7 @@ import {
   Color,
   Sprite,
   SpriteMaterial,
+  type PerspectiveCamera,
 } from "three";
 import {
   championKey,
@@ -120,12 +121,13 @@ const TrophyMarker = memo(function TrophyMarker({
   const halo = useRef<Sprite>(null);
   const cup = useRef<Sprite>(null);
   const badge = useRef<Sprite>(null);
+  const hit = useRef<Sprite>(null);
   const color = major ? MAJOR : STIER;
   const tint = useMemo(() => new Color(color), [color]);
   const holy = city.holy;
   const pos = useMemo(() => latLngToVector3(city.lat, city.lng, RADIUS), [city.lat, city.lng]);
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera, size }) => {
     const t = performance.now() / 1000;
     const dist = camera.position.length();
     const holyMul = holy ? 1.55 : 1;
@@ -153,8 +155,15 @@ const TrophyMarker = memo(function TrophyMarker({
       (halo.current.material as SpriteMaterial).opacity = dimmed ? 0.04 : 0.28;
     }
     if (badge.current) {
-      badge.current.scale.setScalar(base * 0.42);
+      badge.current.scale.setScalar(base * 0.46);
+      badge.current.position.set(base * 0.95, base * 0.78, 0);
       (badge.current.material as SpriteMaterial).opacity = dimmed ? 0.2 : 1;
+    }
+    if (hit.current) {
+      const fov = ((camera as PerspectiveCamera).fov * Math.PI) / 180;
+      const world =
+        (28 / Math.max(size.height, 1)) * 2 * Math.tan(fov / 2) * Math.max(dist, 1.2);
+      hit.current.scale.setScalar(Math.max(world, base * 1.8));
     }
   });
 
@@ -162,7 +171,7 @@ const TrophyMarker = memo(function TrophyMarker({
     <group
       position={pos}
       onClick={(e) => {
-        if (globeInput.movedPx > 6) return;
+        if (globeInput.movedPx >= 5) return;
         if (!isFrontHemisphere(city.lat, city.lng, e.camera.position)) return;
         e.stopPropagation();
         onSelectCity(city);
@@ -218,8 +227,11 @@ const TrophyMarker = memo(function TrophyMarker({
           customProgramCacheKey={horizonCullCacheKey}
         />
       </sprite>
+      <sprite ref={hit} renderOrder={6}>
+        <spriteMaterial transparent opacity={0} depthWrite={false} depthTest={false} />
+      </sprite>
       {badgeTex ? (
-        <sprite ref={badge} renderOrder={5} position={[0.018, 0.018, 0.018]}>
+        <sprite ref={badge} renderOrder={5}>
           <spriteMaterial
             map={badgeTex}
             transparent

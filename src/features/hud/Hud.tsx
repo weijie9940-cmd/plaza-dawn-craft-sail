@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Globe2, Grid3x3, List, MapPinPlus, Medal, Sun, Trophy } from "lucide-react";
+import { CS2_MAJORS } from "@/data/cs2-majors";
 import { COUNTRY_BY_ISO, COUNTRY_COUNT } from "@/data/countries";
-import { STIER_SOURCE } from "@/data/s-tier-events";
+import { STIER_SOURCE, citiesUpToYear } from "@/data/s-tier-events";
+import { countMajorsUpToYear } from "@/lib/s-tier-stats";
 import { useGlobeStore } from "@/store/globe-store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -29,6 +31,9 @@ export function Hud() {
   const setPinMode = useGlobeStore((s) => s.setPinMode);
   const setPanelOpen = useGlobeStore((s) => s.setPanelOpen);
   const panelOpen = useGlobeStore((s) => s.panelOpen);
+  const sTierYear = useGlobeStore((s) => s.sTierYear);
+  const majorEvents = countMajorsUpToYear(sTierYear);
+  const sTierCities = citiesUpToYear(sTierYear).length;
 
   const hovered = hoveredIso ? COUNTRY_BY_ISO.get(hoveredIso) : null;
   const showCard = Boolean(selectedIso || selectedMarker);
@@ -43,14 +48,14 @@ export function Hud() {
         <div className="pointer-events-auto min-w-0 flex-1 sm:flex sm:justify-center">
           <SearchBar />
         </div>
-        <div className="pointer-events-auto flex shrink-0 items-center gap-1.5">
+        <div className="pointer-events-auto flex shrink-0 items-center gap-1">
           <Button
             size="icon"
             variant={showSTier ? "secondary" : "ghost"}
             aria-pressed={showSTier}
             aria-label="S 级赛事城市与 Major 冠军所在城市"
             title="S 级赛事城市与 Major 冠军所在城市"
-            className={cn(showSTier && "text-marker-major")}
+            className={cn("size-9 sm:size-11", showSTier && "text-marker-major")}
             onClick={() => setShowSTier(!showSTier)}
           >
             <Trophy className="size-4" />
@@ -61,7 +66,7 @@ export function Hud() {
             aria-pressed={showCs2Majors}
             aria-label="历届 Major 举办城市"
             title="历届 Major 举办城市"
-            className={cn("hidden sm:inline-flex", showCs2Majors && "text-accent")}
+            className={cn("size-9 sm:size-11", showCs2Majors && "text-accent")}
             onClick={() => setShowCs2Majors(!showCs2Majors)}
           >
             <Medal className="size-4" />
@@ -72,7 +77,7 @@ export function Hud() {
             aria-pressed={showGraticule}
             aria-label="经纬网"
             title="经纬网"
-            className={cn("hidden sm:inline-flex", showGraticule && "text-accent")}
+            className={cn("size-9 sm:size-11", showGraticule && "text-accent")}
             onClick={() => setShowGraticule(!showGraticule)}
           >
             <Grid3x3 className="size-4" />
@@ -83,7 +88,7 @@ export function Hud() {
             aria-pressed={showDaylight}
             aria-label="日照"
             title="日照"
-            className={cn("hidden sm:inline-flex", showDaylight && "text-marker-major")}
+            className={cn("size-9 sm:size-11", showDaylight && "text-marker-major")}
             onClick={() => setShowDaylight(!showDaylight)}
           >
             <Sun className="size-4" />
@@ -94,6 +99,7 @@ export function Hud() {
             aria-pressed={pinMode}
             aria-label="放置标记"
             title="放置标记"
+            className="size-9 sm:size-11"
             onClick={() => setPinMode(!pinMode)}
           >
             <MapPinPlus className="size-4" />
@@ -103,7 +109,8 @@ export function Hud() {
             variant={panelOpen ? "secondary" : "ghost"}
             aria-pressed={panelOpen}
             aria-label="足迹列表"
-            title="足迹"
+            title="足迹列表"
+            className="size-9 sm:size-11"
             onClick={() => setPanelOpen(!panelOpen)}
           >
             <List className="size-4" />
@@ -130,7 +137,7 @@ export function Hud() {
         <SidePanel />
       </div>
 
-      <footer className="absolute right-0 bottom-0 left-0 z-20 flex flex-col gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-5">
+      <footer className="absolute right-0 bottom-0 left-0 z-30 flex flex-col gap-3 bg-bg/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-5">
         <div className="flex justify-center">
           <YearSlider />
         </div>
@@ -145,23 +152,23 @@ export function Hud() {
             </p>
             <UtcReadout />
           </div>
-          <ul className="hidden items-center gap-4 text-xs text-fg-muted lg:flex">
+          <ul className="hidden items-center gap-4 rounded-lg bg-surface px-3 py-2 text-xs text-fg-muted lg:flex">
             {showSTier ? (
               <>
                 <li className="flex items-center gap-1.5">
                   <TrophyGlyph className="text-marker-major" />
-                  Major 冠军所在城市
+                  Major 冠军所在城市（{majorEvents}）
                 </li>
                 <li className="flex items-center gap-1.5">
                   <TrophyGlyph className="text-marker-stier" />
-                  S 级赛事城市
+                  S 级赛事城市（{sTierCities}）
                 </li>
               </>
             ) : null}
             {showCs2Majors ? (
               <li className="flex items-center gap-1.5">
                 <PulseGlyph className="bg-marker-cs2" />
-                历届 Major 举办城市
+                历届 Major 举办城市（{CS2_MAJORS.length}）
               </li>
             ) : null}
             <li className="flex items-center gap-1.5">

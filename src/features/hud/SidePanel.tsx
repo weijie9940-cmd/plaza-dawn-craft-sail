@@ -4,6 +4,7 @@ import { CS2_MAJORS } from "@/data/cs2-majors";
 import { citiesUpToYear } from "@/data/s-tier-events";
 import { useGlobeStore } from "@/store/globe-store";
 import { Button } from "@/components/ui/button";
+import { MvpPhotos } from "./MvpPhotos";
 
 export function SidePanel() {
   const open = useGlobeStore((s) => s.panelOpen);
@@ -127,6 +128,7 @@ export function SidePanel() {
             </ul>
           </section>
         ) : null}
+        <MvpPhotos />
         <section className="mt-3 px-2">
           <h3 className="mb-1.5 text-xs font-medium tracking-wide text-fg-muted">CS Major 城市</h3>
           <ul>

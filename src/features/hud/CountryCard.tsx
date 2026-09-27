@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Check, Navigation } from "lucide-react";
+import { MapPin, Check, Navigation, X } from "lucide-react";
 import { COUNTRY_BY_ISO } from "@/data/countries";
 import { CS2_MAJORS } from "@/data/cs2-majors";
 import {
@@ -55,7 +55,8 @@ export function CountryCard() {
     if (!city) return null;
     const majorCount = city.events.filter((e) => e.tier === "Major").length;
     return (
-      <article className="card-enter pointer-events-auto w-full max-w-sm rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+      <article className="card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
+        <CloseCardButton onClick={clearSelection} />
         <p className="text-xs font-medium tracking-wide text-marker-major uppercase">
           {majorCount > 0 ? "Major · S 级赛事" : "S 级赛事"}
           {city.holy ? " · 电竞圣地" : ""}
@@ -94,8 +95,8 @@ export function CountryCard() {
                   <button
                     type="button"
                     className={cn(
-                      "rounded-sm px-0.5 font-medium underline-offset-2 hover:underline",
-                      active ? "text-marker-major" : "text-fg",
+                      "rounded-sm px-0.5 font-medium underline-offset-2 hover:bg-white/10 hover:text-marker-major hover:underline",
+                      active ? "text-marker-major underline" : "text-fg",
                     )}
                     onClick={() => {
                       if (!isMajor || !eventId) {
@@ -114,8 +115,9 @@ export function CountryCard() {
                   >
                     {ev.champion}
                   </button>
-                  <span className="text-fg-subtle"> —— </span>
-                  <span className="text-fg-muted">{ev.name}</span>
+                </p>
+                <p className="mt-0.5 text-sm text-fg-muted" title={ev.name}>
+                  {ev.name}
                 </p>
                 <p className="mt-0.5 text-xs text-fg-subtle">
                   {ev.tier === "Major" ? "Major" : "S 级"}
@@ -159,9 +161,6 @@ export function CountryCard() {
             <Navigation className="size-3.5" />
             定位
           </Button>
-          <Button size="sm" variant="ghost" onClick={clearSelection}>
-            关闭
-          </Button>
         </div>
       </article>
     );
@@ -171,7 +170,8 @@ export function CountryCard() {
     const city = CS2_MAJORS.find((m) => m.id === selectedMarker.id);
     if (!city) return null;
     return (
-      <article className="card-enter pointer-events-auto w-full max-w-sm rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+      <article className="card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
+        <CloseCardButton onClick={clearSelection} />
         <p className="text-xs font-medium tracking-wide text-accent uppercase">CS Major</p>
         <h2 className="mt-1 font-display text-xl font-medium tracking-tight text-fg">
           {city.cityZh}
@@ -183,7 +183,7 @@ export function CountryCard() {
         <ul className="mt-3 space-y-1.5">
           {city.events.map((ev) => (
             <li key={`${ev.year}-${ev.name}`} className="flex justify-between gap-3 text-sm">
-              <span className="text-fg">
+              <span className="min-w-0 text-fg" title={ev.name}>
                 {ev.year} {ev.name}
               </span>
               <span className="shrink-0 text-fg-muted">{ev.winner}</span>
@@ -195,9 +195,6 @@ export function CountryCard() {
             <Navigation className="size-3.5" />
             定位
           </Button>
-          <Button size="sm" variant="ghost" onClick={clearSelection}>
-            关闭
-          </Button>
         </div>
       </article>
     );
@@ -207,7 +204,8 @@ export function CountryCard() {
     const marker = customMarkers.find((m) => m.id === selectedMarker.id);
     if (!marker) return null;
     return (
-      <article className="card-enter pointer-events-auto w-full max-w-sm rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+      <article className="card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
+        <CloseCardButton onClick={clearSelection} />
         <p className="text-xs font-medium tracking-wide text-fg-muted uppercase">我的标记</p>
         <h2 className="mt-1 font-display text-xl font-medium tracking-tight text-fg">{marker.name}</h2>
         <p className="mt-1 font-mono text-xs text-fg-muted">{formatCoord(marker.lat, marker.lng)}</p>
@@ -231,7 +229,8 @@ export function CountryCard() {
   const lit = visited.includes(country.iso);
 
   return (
-    <article className="card-enter pointer-events-auto w-full max-w-sm rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+    <article className="card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
+      <CloseCardButton onClick={clearSelection} />
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-medium tracking-tight text-fg">{country.nameZh}</h2>
@@ -261,11 +260,22 @@ export function CountryCard() {
           <Navigation className="size-3.5" />
           飞向这里
         </Button>
-        <Button size="sm" variant="ghost" onClick={clearSelection}>
-          关闭
-        </Button>
       </div>
     </article>
+  );
+}
+
+function CloseCardButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="关闭"
+      title="关闭"
+      className="absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-md border border-white/30 bg-surface-2 text-fg hover:bg-white/10"
+    >
+      <X className="size-4" />
+    </button>
   );
 }
 

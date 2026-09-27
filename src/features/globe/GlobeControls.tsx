@@ -5,13 +5,43 @@ import { easeInOutCubic, latLngToVector3, shortestAngle } from "@/lib/geo";
 import { useGlobeStore } from "@/store/globe-store";
 import { globeInput } from "./input-state";
 
-const PHI_MIN = 0.18;
-const PHI_MAX = Math.PI - 0.18;
+const PHI_MIN = 0.22;
+const PHI_MAX = Math.PI - 0.22;
 const RADIUS_MIN = 1.42;
-const RADIUS_MAX = 4.6;
+const RADIUS_MAX = 4.2;
 const IDLE_MS = 4200;
 const AUTO_THETA = 0.055;
 const DAMP = 4.2;
+const MAX_DRAG = 0.32;
+const MAX_VEL = 2.2;
+const DEFAULT_RADIUS = 2.65;
+const DEFAULT_PHI = Math.PI / 2 - 0.22;
+const DEFAULT_THETA = 0.55;
+
+function resetView(sph: Spherical, vel: { phi: number; theta: number }) {
+  sph.radius = DEFAULT_RADIUS;
+  sph.phi = DEFAULT_PHI;
+  sph.theta = DEFAULT_THETA;
+  vel.phi = 0;
+  vel.theta = 0;
+}
+
+function clampOrbit(sph: Spherical, vel: { phi: number; theta: number }) {
+  if (
+    !Number.isFinite(sph.radius) ||
+    !Number.isFinite(sph.phi) ||
+    !Number.isFinite(sph.theta) ||
+    !Number.isFinite(vel.phi) ||
+    !Number.isFinite(vel.theta)
+  ) {
+    resetView(sph, vel);
+    return;
+  }
+  sph.phi = Math.min(PHI_MAX, Math.max(PHI_MIN, sph.phi));
+  sph.radius = Math.min(RADIUS_MAX, Math.max(RADIUS_MIN, sph.radius));
+  vel.phi = Math.min(MAX_VEL, Math.max(-MAX_VEL, vel.phi));
+  vel.theta = Math.min(MAX_VEL, Math.max(-MAX_VEL, vel.theta));
+}
 
 export function GlobeControls() {
   const camera = useThree((s) => s.camera);
@@ -130,11 +160,13 @@ export function GlobeControls() {
       if (!globeInput.dragging) return;
 
       const k = 2.15 / Math.max(size.height, 1);
-      sph.current.theta -= dx * k;
-      sph.current.phi -= dy * k;
-      sph.current.phi = Math.min(PHI_MAX, Math.max(PHI_MIN, sph.current.phi));
-      vel.current.theta = -dx * k * 60;
-      vel.current.phi = -dy * k * 60;
+      const dTheta = Math.min(MAX_DRAG, Math.max(-MAX_DRAG, dx * k));
+      const dPhi = Math.min(MAX_DRAG, Math.max(-MAX_DRAG, dy * k));
+      sph.current.theta -= dTheta;
+      sph.current.phi -= dPhi;
+      vel.current.theta = -dTheta * 48;
+      vel.current.phi = -dPhi * 48;
+      clampOrbit(sph.current, vel.current);
       bumpIdle();
     };
 
@@ -223,9 +255,15 @@ export function GlobeControls() {
       if (store.hoveredIso) store.setHoveredIso(null);
     }
 
-    sph.current.phi = Math.min(PHI_MAX, Math.max(PHI_MIN, sph.current.phi));
-    sph.current.radius = Math.min(RADIUS_MAX, Math.max(RADIUS_MIN, sph.current.radius));
+    clampOrbit(sph.current, vel.current);
+    camera.up.set(0, 1, 0);
     camera.position.setFromSpherical(sph.current);
+    const dist = camera.position.length();
+    if (!Number.isFinite(dist) || dist < 1.25 || dist > RADIUS_MAX + 0.35) {
+      resetView(sph.current, vel.current);
+      camera.up.set(0, 1, 0);
+      camera.position.setFromSpherical(sph.current);
+    }
     camera.lookAt(0, 0, 0);
   });
 
