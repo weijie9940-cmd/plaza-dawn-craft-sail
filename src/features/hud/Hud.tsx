@@ -138,6 +138,12 @@ export function Hud() {
       </div>
 
       <footer className="absolute right-0 bottom-0 left-0 z-30 flex flex-col gap-3 bg-bg/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-5">
+        <a
+          href="https://xina-official.cn"
+          className="pointer-events-auto self-start text-[11px] leading-none text-fg-subtle underline-offset-2 hover:text-fg-muted hover:underline"
+        >
+          ← Xina 作品集
+        </a>
         <div className="flex justify-center">
           <YearSlider />
         </div>

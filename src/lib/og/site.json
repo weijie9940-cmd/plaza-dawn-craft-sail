@@ -1,5 +1,6 @@
 {
-  "title": "ORBITAL 寰宇",
+  "title": "ORBITAL · CS 电竞版图",
+  "description": "交互式 3D 地球，标出 CS 电竞 S 级赛事与 Major 的举办城市、冠军和当场 MVP。",
   "card": "custom",
   "type": "x:game"
 }
