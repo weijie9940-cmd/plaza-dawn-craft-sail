@@ -179,14 +179,24 @@ export default defineConfig(({ command, isPreview }) => ({
     tanstackStart(
       edgeone
         ? {
-            spa: {
+            // Full prerender of `/` so the static HTML matches the client
+            // hydration. SPA shell mode renders a pending placeholder and
+            // React then throws a hydration mismatch (minified error 418).
+            prerender: {
               enabled: true,
-              prerender: {
-                outputPath: "/index.html",
-                crawlLinks: false,
-                autoSubfolderIndex: false,
-              },
+              crawlLinks: false,
+              autoStaticPathsDiscovery: true,
+              failOnError: true,
             },
+            pages: [
+              {
+                path: "/",
+                prerender: {
+                  outputPath: "/index.html",
+                  autoSubfolderIndex: false,
+                },
+              },
+            ],
           }
         : {},
     ),
