@@ -62,7 +62,7 @@ export const EVENT_MVPS: Record<string, EventMvp> = {
   "2018-03-iem-katowice-2018": { player: "flusha", team: "fnatic", source: "https://www.hltv.org/events/3309/iem-katowice-2018" },
   "2018-03-wesg-2017-world-finals": { player: "KRIMZ", team: "fnatic", source: "https://www.hltv.org/events/3112/wesg-2017-world-finals" },
   "2018-04-dreamhack-masters-marseille-2018": { player: "s1mple", team: "Natus Vincere", source: "https://www.hltv.org/events/3491/dreamhack-masters-marseille-2018" },
-  "2018-05-cs-summit-2": { player: "NAF", team: "Liquid", source: "https://www.hltv.org/events/3454/cs-summit-2" },
+  "2018-02-cs-summit-2": { player: "NAF", team: "Liquid", source: "https://www.hltv.org/events/3454/cs-summit-2" },
   "2018-05-esl-pro-league-season-7-finals": { player: "dupreeh", team: "Astralis", source: "https://www.hltv.org/events/3373/esl-pro-league-season-7-finals" },
   "2018-05-iem-sydney-2018": { player: "GuardiaN", team: "FaZe", source: "https://www.hltv.org/events/3530/iem-sydney-2018" },
   "2018-06-cs-go-asia-championships-2018": { player: "s1mple", team: "Natus Vincere", source: "https://www.hltv.org/events/3714/csgo-asia-championships-2018" },

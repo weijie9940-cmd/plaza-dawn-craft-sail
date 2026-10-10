@@ -11,6 +11,7 @@ import { CountryCard } from "./CountryCard";
 import { PinDialog } from "./PinDialog";
 import { SearchBar } from "./SearchBar";
 import { SidePanel } from "./SidePanel";
+import { TeamSnapshotSidePanel } from "./TeamSnapshotPanel";
 import { YearSlider } from "./YearSlider";
 
 export function Hud() {
@@ -136,6 +137,7 @@ export function Hud() {
       <div className="absolute top-20 right-3 z-20 sm:top-5 sm:right-5 sm:pt-14">
         <SidePanel />
       </div>
+      <TeamSnapshotSidePanel />
 
       <footer className="absolute right-0 bottom-0 left-0 z-30 flex flex-col gap-3 bg-bg/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-5">
         <div className="flex justify-center">

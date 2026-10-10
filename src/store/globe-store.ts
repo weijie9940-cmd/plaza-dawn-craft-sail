@@ -35,6 +35,8 @@ type GlobeState = {
   pendingPin: { lat: number; lng: number } | null;
   flyTo: FlyTo | null;
   panelOpen: boolean;
+  teamSnapshotId: string | null;
+  setTeamSnapshotId: (id: string | null) => void;
   hydrate: () => void;
   setTexturesReady: (v: boolean) => void;
   setShowGraticule: (v: boolean) => void;
@@ -78,6 +80,7 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
   pendingPin: null,
   flyTo: null,
   panelOpen: false,
+  teamSnapshotId: null,
   hydrate: () => {
     if (get().hydrated) return;
     const saved = loadSave();
@@ -156,7 +159,8 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
   setPendingPin: (pin) => set({ pendingPin: pin }),
   requestFlyTo: (lat, lng, radius = 1.85) =>
     set({ flyTo: { lat, lng, radius, key: Date.now() } }),
-  setPanelOpen: (v) => set({ panelOpen: v }),
+  setPanelOpen: (v) => set(v ? { panelOpen: true, teamSnapshotId: null } : { panelOpen: false }),
+  setTeamSnapshotId: (id) => set(id ? { teamSnapshotId: id, panelOpen: false } : { teamSnapshotId: null }),
   clearSelection: () =>
     set({
       selectedIso: null,

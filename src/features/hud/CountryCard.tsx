@@ -16,8 +16,15 @@ import { formatCoord } from "@/lib/geo";
 import { useGlobeStore } from "@/store/globe-store";
 import { Button } from "@/components/ui/button";
 import { CS2_MAJOR_EVENT_IDS, eventMvpWithPhoto } from "@/data/event-mvps";
+import { teamSnapshot } from "@/data/team-snapshots";
 import { cn } from "@/lib/utils";
 import { EventMvp } from "./EventMvp";
+import { TeamSnapshotView, useIsDesktop } from "./TeamSnapshotPanel";
+
+const LIST_OPEN =
+  "max-h-[max(8rem,min(28rem,calc(100dvh-34.75rem)))] sm:max-h-[max(8rem,min(28rem,calc(100dvh-33.5rem)))]";
+const LIST_SHUT =
+  "max-h-[max(8rem,min(14rem,calc(100dvh-34.75rem)))] sm:max-h-[max(8rem,min(14rem,calc(100dvh-33.5rem)))]";
 
 export function CountryCard() {
 
@@ -32,6 +39,9 @@ export function CountryCard() {
   const sTierYear = useGlobeStore((s) => s.sTierYear);
   const highlightedTeam = useGlobeStore((s) => s.highlightedTeam);
   const setHighlightedTeam = useGlobeStore((s) => s.setHighlightedTeam);
+  const teamSnapshotId = useGlobeStore((s) => s.teamSnapshotId);
+  const setTeamSnapshotId = useGlobeStore((s) => s.setTeamSnapshotId);
+  const isDesktop = useIsDesktop();
   const [openMajorId, setOpenMajorId] = useState<string | null>(null);
   const [openMvpId, setOpenMvpId] = useState<string | null>(null);
   const [openCs2Mvp, setOpenCs2Mvp] = useState<string | null>(null);
@@ -42,11 +52,33 @@ export function CountryCard() {
   useEffect(() => {
     setOpenMajorId(null);
     setOpenMvpId(null);
-  }, [stierCityId]);
+    setTeamSnapshotId(null);
+  }, [stierCityId, setTeamSnapshotId]);
 
   useEffect(() => {
     setOpenCs2Mvp(null);
-  }, [cs2CityId]);
+    setTeamSnapshotId(null);
+  }, [cs2CityId, setTeamSnapshotId]);
+
+  useEffect(() => () => setTeamSnapshotId(null), [setTeamSnapshotId]);
+
+  useEffect(() => {
+    if (!teamSnapshotId || selectedMarker?.kind !== "stier") return;
+    const city = citiesUpToYear(sTierYear).find((item) => item.id === selectedMarker.id);
+    const still = city?.events.some((ev) => majorEventId(ev) === teamSnapshotId) ?? false;
+    if (!still) setTeamSnapshotId(null);
+  }, [teamSnapshotId, sTierYear, selectedMarker, setTeamSnapshotId]);
+
+  useEffect(() => {
+    if (isDesktop || !teamSnapshotId || !listRef.current) return;
+    const block = listRef.current.querySelector<HTMLElement>(
+      `#team-snapshot-${CSS.escape(teamSnapshotId)}`,
+    );
+    if (!block) return;
+    const list = listRef.current;
+    const top = block.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+    list.scrollTo({ top, behavior: "smooth" });
+  }, [teamSnapshotId, isDesktop]);
 
   useEffect(() => {
     if (!highlightedTeam) setOpenMajorId(null);
@@ -82,9 +114,7 @@ export function CountryCard() {
           ref={listRef}
           className={cn(
             "mt-3 space-y-2 overflow-y-auto pr-1",
-            openMajorId || openMvpId
-              ? "max-h-[max(8rem,min(28rem,calc(100dvh-34.75rem)))] sm:max-h-[max(8rem,min(28rem,calc(100dvh-33.5rem)))]"
-              : "max-h-[max(8rem,min(14rem,calc(100dvh-34.75rem)))] sm:max-h-[max(8rem,min(14rem,calc(100dvh-33.5rem)))]",
+            openMajorId || openMvpId || (!isDesktop && teamSnapshotId) ? LIST_OPEN : LIST_SHUT,
           )}
         >
           {city.events.map((ev) => {
@@ -96,6 +126,8 @@ export function CountryCard() {
             const evId = majorEventId(ev);
             const mvp = eventMvpWithPhoto(evId);
             const mvpOpen = mvp !== null && openMvpId === evId;
+            const snap = teamSnapshot(evId);
+            const snapOpen = snap !== null && teamSnapshotId === evId;
             return (
               <li
                 key={`${ev.year}-${ev.month}-${ev.name}`}
@@ -115,16 +147,24 @@ export function CountryCard() {
                     )}
                     onClick={() => {
                       if (!isMajor || !eventId) {
-                        setHighlightedTeam(active ? null : key);
+                        if (!active) {
+                          setHighlightedTeam(key);
+                          if (snap) setTeamSnapshotId(evId);
+                        } else {
+                          setHighlightedTeam(null);
+                          if (teamSnapshotId === evId) setTeamSnapshotId(null);
+                        }
                         return;
                       }
                       if (photoOpen) {
                         setOpenMajorId(null);
                         setHighlightedTeam(null);
+                        if (teamSnapshotId === evId) setTeamSnapshotId(null);
                         return;
                       }
                       setOpenMajorId(eventId);
                       setHighlightedTeam(key);
+                      if (snap) setTeamSnapshotId(evId);
                     }}
                     title="高亮该战队所有夺冠城市"
                   >
@@ -148,12 +188,26 @@ export function CountryCard() {
                     {ev.name}
                   </p>
                 )}
-                <p className="mt-0.5 text-xs text-fg-subtle">
-                  {ev.tier === "Major" ? "Major" : "S 级"}
-                  {" · "}
-                  {ev.venue ?? "场馆待考"}
-                  {ev.cityEn !== city.city ? ` · ${ev.cityZh}` : ""}
-                </p>
+                <div className="mt-0.5 flex items-start justify-between gap-2">
+                  <p className="text-xs text-fg-subtle">
+                    {ev.tier === "Major" ? "Major" : "S 级"}
+                    {" · "}
+                    {ev.venue ?? "场馆待考"}
+                    {ev.cityEn !== city.city ? ` · ${ev.cityZh}` : ""}
+                  </p>
+                  {snap ? (
+                    <button
+                      type="button"
+                      className="shrink-0 text-xs text-marker-major underline-offset-2 hover:underline"
+                      aria-expanded={snapOpen}
+                      aria-controls={`team-snapshot-${evId}`}
+                      title="查看当时的战队快照"
+                      onClick={() => setTeamSnapshotId(snapOpen ? null : evId)}
+                    >
+                      战队快照
+                    </button>
+                  ) : null}
+                </div>
                 {ev.note?.includes("级别边缘") ? (
                   <p className="text-xs text-fg-subtle">级别边缘</p>
                 ) : null}
@@ -167,6 +221,11 @@ export function CountryCard() {
                 {mvpOpen && mvp ? (
                   <div id={`event-mvp-${evId}`}>
                     <EventMvp mvpId={mvp.id} team={mvp.team} src={mvp.src} eventName={ev.name} />
+                  </div>
+                ) : null}
+                {!isDesktop && snapOpen && snap ? (
+                  <div id={`team-snapshot-${evId}`}>
+                    <TeamSnapshotView snapshot={snap} eventName={ev.name} variant="inline" />
                   </div>
                 ) : null}
               </li>
@@ -188,7 +247,7 @@ export function CountryCard() {
             </button>
           </p>
         ) : (
-          <p className="mt-3 text-xs text-fg-subtle">点击战队名查看夺冠版图，点击赛事名查看 MVP</p>
+          <p className="mt-3 text-xs text-fg-subtle">点击战队名查看夺冠版图与战队快照，点击赛事名查看 MVP</p>
         )}
         <div className="mt-4 flex gap-2">
           <Button size="sm" variant="secondary" onClick={() => requestFlyTo(city.lat, city.lng, 1.62)}>
@@ -214,11 +273,19 @@ export function CountryCard() {
         <p className="mt-1 text-sm text-fg-muted">
           {city.countryZh} · {formatCoord(city.lat, city.lng)}
         </p>
-        <ul className="mt-3 space-y-1.5">
+        <ul
+          ref={listRef}
+          className={cn(
+            "mt-3 space-y-1.5 overflow-y-auto pr-1",
+            openCs2Mvp || (!isDesktop && teamSnapshotId) ? LIST_OPEN : LIST_SHUT,
+          )}
+        >
           {city.events.map((ev) => {
             const evId = CS2_MAJOR_EVENT_IDS[`${ev.year}|${ev.name}`];
             const mvp = eventMvpWithPhoto(evId);
             const mvpOpen = mvp !== null && openCs2Mvp === evId;
+            const snap = teamSnapshot(evId);
+            const snapOpen = snap !== null && teamSnapshotId === evId;
             return (
               <li key={`${ev.year}-${ev.name}`} className="text-sm">
                 <div className="flex justify-between gap-3">
@@ -239,11 +306,29 @@ export function CountryCard() {
                       {ev.year} {ev.name}
                     </span>
                   )}
-                  <span className="shrink-0 text-fg-muted">{ev.winner}</span>
+                  {snap ? (
+                    <button
+                      type="button"
+                      className="shrink-0 text-fg-muted underline-offset-2 hover:text-fg hover:underline"
+                      aria-expanded={snapOpen}
+                      aria-controls={`team-snapshot-${evId}`}
+                      title="查看当时的战队快照"
+                      onClick={() => setTeamSnapshotId(snapOpen ? null : evId)}
+                    >
+                      {ev.winner} ›
+                    </button>
+                  ) : (
+                    <span className="shrink-0 text-fg-muted">{ev.winner}</span>
+                  )}
                 </div>
                 {mvpOpen && mvp ? (
                   <div id={`event-mvp-${evId}`}>
                     <EventMvp mvpId={mvp.id} team={mvp.team} src={mvp.src} eventName={ev.name} />
+                  </div>
+                ) : null}
+                {!isDesktop && snapOpen && snap ? (
+                  <div id={`team-snapshot-${evId}`}>
+                    <TeamSnapshotView snapshot={snap} eventName={ev.name} variant="inline" />
                   </div>
                 ) : null}
               </li>
