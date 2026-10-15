@@ -36,7 +36,9 @@ type GlobeState = {
   flyTo: FlyTo | null;
   panelOpen: boolean;
   teamSnapshotId: string | null;
+  rankingOpen: boolean;
   setTeamSnapshotId: (id: string | null) => void;
+  setRankingOpen: (v: boolean) => void;
   hydrate: () => void;
   setTexturesReady: (v: boolean) => void;
   setShowGraticule: (v: boolean) => void;
@@ -81,6 +83,7 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
   flyTo: null,
   panelOpen: false,
   teamSnapshotId: null,
+  rankingOpen: false,
   hydrate: () => {
     if (get().hydrated) return;
     const saved = loadSave();
@@ -159,8 +162,12 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
   setPendingPin: (pin) => set({ pendingPin: pin }),
   requestFlyTo: (lat, lng, radius = 1.85) =>
     set({ flyTo: { lat, lng, radius, key: Date.now() } }),
-  setPanelOpen: (v) => set(v ? { panelOpen: true, teamSnapshotId: null } : { panelOpen: false }),
-  setTeamSnapshotId: (id) => set(id ? { teamSnapshotId: id, panelOpen: false } : { teamSnapshotId: null }),
+  setPanelOpen: (v) =>
+    set(v ? { panelOpen: true, teamSnapshotId: null, rankingOpen: false } : { panelOpen: false }),
+  setTeamSnapshotId: (id) =>
+    set(id ? { teamSnapshotId: id, panelOpen: false, rankingOpen: false } : { teamSnapshotId: null }),
+  setRankingOpen: (v) =>
+    set(v ? { rankingOpen: true, panelOpen: false, teamSnapshotId: null } : { rankingOpen: false }),
   clearSelection: () =>
     set({
       selectedIso: null,

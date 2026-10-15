@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Globe2, Grid3x3, List, MapPinPlus, Medal, Sun, Trophy } from "lucide-react";
+import { Globe2, Grid3x3, List, ListOrdered, MapPinPlus, Medal, Sun, Trophy } from "lucide-react";
 import { CS2_MAJORS } from "@/data/cs2-majors";
 import { COUNTRY_BY_ISO, COUNTRY_COUNT } from "@/data/countries";
 import { STIER_SOURCE, citiesUpToYear } from "@/data/s-tier-events";
@@ -12,6 +12,7 @@ import { PinDialog } from "./PinDialog";
 import { SearchBar } from "./SearchBar";
 import { SidePanel } from "./SidePanel";
 import { TeamSnapshotSidePanel } from "./TeamSnapshotPanel";
+import { WorldRankingPanel } from "./WorldRankingPanel";
 import { YearSlider } from "./YearSlider";
 
 export function Hud() {
@@ -32,6 +33,8 @@ export function Hud() {
   const setPinMode = useGlobeStore((s) => s.setPinMode);
   const setPanelOpen = useGlobeStore((s) => s.setPanelOpen);
   const panelOpen = useGlobeStore((s) => s.panelOpen);
+  const rankingOpen = useGlobeStore((s) => s.rankingOpen);
+  const setRankingOpen = useGlobeStore((s) => s.setRankingOpen);
   const sTierYear = useGlobeStore((s) => s.sTierYear);
   const majorEvents = countMajorsUpToYear(sTierYear);
   const sTierCities = citiesUpToYear(sTierYear).length;
@@ -107,6 +110,17 @@ export function Hud() {
           </Button>
           <Button
             size="icon"
+            variant={rankingOpen ? "secondary" : "ghost"}
+            aria-pressed={rankingOpen}
+            aria-label="世界排名"
+            title="HLTV 世界排名"
+            className="size-9 sm:size-11"
+            onClick={() => setRankingOpen(!rankingOpen)}
+          >
+            <ListOrdered className="size-4" />
+          </Button>
+          <Button
+            size="icon"
             variant={panelOpen ? "secondary" : "ghost"}
             aria-pressed={panelOpen}
             aria-label="足迹列表"
@@ -138,6 +152,7 @@ export function Hud() {
         <SidePanel />
       </div>
       <TeamSnapshotSidePanel />
+      <WorldRankingPanel />
 
       <footer className="absolute right-0 bottom-0 left-0 z-30 flex flex-col gap-3 bg-bg/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-5">
         <div className="flex justify-center">
