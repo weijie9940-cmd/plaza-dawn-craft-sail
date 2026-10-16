@@ -1,7 +1,8 @@
-// 来源 tmp/current-ranking-final.json（HLTV 2026-10-05 周榜，2026-10 验收）
-// 生成脚本 tmp/20-gen-ranking.cjs
+// 来源 tmp/current-ranking-2.json（HLTV 2026-10-12 周榜，2026-10 验收）
+// 生成脚本 tmp/22-gen-ranking.cjs
 // 勿手改，改数据请重跑脚本
 // 静态数据，运行时不读 tmp/
+// source 字段仅用于核对，不写入本文件
 
 export type RankingPlayer = { nick: string; country: string; hltvPlayerUrl: string | null };
 export type RankingCoach = { nick: string; country: string };
@@ -25,15 +26,15 @@ export const WORLD_RANKING: {
   sourceUrl: string;
   teams: WorldRankingTeam[];
 } = {
-  "rankingDate": "2026-10-05",
-  "pageTitle": "Counter-Strike World ranking on October 5th, 2026",
-  "sourceUrl": "https://www.hltv.org/ranking/teams/2026/october/5",
+  "rankingDate": "2026-10-12",
+  "pageTitle": "Counter-Strike World ranking on October 12th, 2026",
+  "sourceUrl": "https://www.hltv.org/ranking/teams/2026/october/12",
   "teams": [
     {
       "rank": 1,
       "team": "Spirit",
       "teamKey": "Team Spirit",
-      "points": 1000,
+      "points": 972,
       "change": "0",
       "roster": [
         {
@@ -145,7 +146,7 @@ export const WORLD_RANKING: {
       "rank": 2,
       "team": "Vitality",
       "teamKey": "Team Vitality",
-      "points": 686,
+      "points": 894,
       "change": "0",
       "roster": [
         {
@@ -179,7 +180,7 @@ export const WORLD_RANKING: {
         "country": "FR"
       },
       "honours": {
-        "count": 28,
+        "count": 29,
         "list": [
           {
             "event": "cs_summit 4",
@@ -348,6 +349,12 @@ export const WORLD_RANKING: {
             "date": "2026-09-20",
             "place": "1st",
             "tier": "S"
+          },
+          {
+            "event": "ESL Pro League Season 24",
+            "date": "2026-10-11",
+            "place": "1st",
+            "tier": "S"
           }
         ]
       },
@@ -359,8 +366,8 @@ export const WORLD_RANKING: {
       "rank": 3,
       "team": "MOUZ",
       "teamKey": "MOUZ",
-      "points": 562,
-      "change": "+1",
+      "points": 692,
+      "change": "0",
       "roster": [
         {
           "nick": "torzsi",
@@ -471,8 +478,8 @@ export const WORLD_RANKING: {
       "rank": 4,
       "team": "FURIA",
       "teamKey": "FURIA",
-      "points": 534,
-      "change": "-1",
+      "points": 527,
+      "change": "0",
       "roster": [
         {
           "nick": "FalleN",
@@ -541,7 +548,7 @@ export const WORLD_RANKING: {
       "rank": 5,
       "team": "Falcons",
       "teamKey": "Team Falcons",
-      "points": 496,
+      "points": 488,
       "change": "0",
       "roster": [
         {
@@ -597,10 +604,55 @@ export const WORLD_RANKING: {
     },
     {
       "rank": 6,
+      "team": "Aurora",
+      "teamKey": "Aurora",
+      "points": 461,
+      "change": "+3",
+      "roster": [
+        {
+          "nick": "XANTARES",
+          "country": "TR",
+          "hltvPlayerUrl": "https://www.hltv.org/player/7938/xantares"
+        },
+        {
+          "nick": "woxic",
+          "country": "TR",
+          "hltvPlayerUrl": "https://www.hltv.org/player/8574/woxic"
+        },
+        {
+          "nick": "Jimpphat",
+          "country": "FI",
+          "hltvPlayerUrl": "https://www.hltv.org/player/18850/jimpphat"
+        },
+        {
+          "nick": "kyxsan",
+          "country": "MK",
+          "hltvPlayerUrl": "https://www.hltv.org/player/19677/kyxsan"
+        },
+        {
+          "nick": "Wicadia",
+          "country": "TR",
+          "hltvPlayerUrl": "https://www.hltv.org/player/21243/wicadia"
+        }
+      ],
+      "coach": {
+        "nick": "ash",
+        "country": "GB"
+      },
+      "honours": {
+        "count": 0,
+        "list": []
+      },
+      "teamPageUrl": "https://www.hltv.org/team/11861/aurora",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/Aurora_Gaming",
+      "confidence": "high"
+    },
+    {
+      "rank": 7,
       "team": "Legacy",
       "teamKey": "Legacy",
-      "points": 430,
-      "change": "0",
+      "points": 379,
+      "change": "-1",
       "roster": [
         {
           "nick": "arT",
@@ -654,11 +706,11 @@ export const WORLD_RANKING: {
       "confidence": "medium"
     },
     {
-      "rank": 7,
+      "rank": 8,
       "team": "G2",
       "teamKey": "G2 Esports",
-      "points": 384,
-      "change": "+1",
+      "points": 338,
+      "change": "-1",
       "roster": [
         {
           "nick": "huNter-",
@@ -766,10 +818,10 @@ export const WORLD_RANKING: {
       "confidence": "high"
     },
     {
-      "rank": 8,
+      "rank": 9,
       "team": "FUT",
       "teamKey": "FUT Esports",
-      "points": 359,
+      "points": 319,
       "change": "-1",
       "roster": [
         {
@@ -818,55 +870,10 @@ export const WORLD_RANKING: {
       "confidence": "high"
     },
     {
-      "rank": 9,
-      "team": "Aurora",
-      "teamKey": "Aurora",
-      "points": 350,
-      "change": "0",
-      "roster": [
-        {
-          "nick": "XANTARES",
-          "country": "TR",
-          "hltvPlayerUrl": "https://www.hltv.org/player/7938/xantares"
-        },
-        {
-          "nick": "woxic",
-          "country": "TR",
-          "hltvPlayerUrl": "https://www.hltv.org/player/8574/woxic"
-        },
-        {
-          "nick": "Jimpphat",
-          "country": "FI",
-          "hltvPlayerUrl": "https://www.hltv.org/player/18850/jimpphat"
-        },
-        {
-          "nick": "kyxsan",
-          "country": "MK",
-          "hltvPlayerUrl": "https://www.hltv.org/player/19677/kyxsan"
-        },
-        {
-          "nick": "Wicadia",
-          "country": "TR",
-          "hltvPlayerUrl": "https://www.hltv.org/player/21243/wicadia"
-        }
-      ],
-      "coach": {
-        "nick": "ash",
-        "country": "GB"
-      },
-      "honours": {
-        "count": 0,
-        "list": []
-      },
-      "teamPageUrl": "https://www.hltv.org/team/11861/aurora",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/Aurora_Gaming",
-      "confidence": "high"
-    },
-    {
       "rank": 10,
       "team": "Natus Vincere",
       "teamKey": "Natus Vincere",
-      "points": 241,
+      "points": 216,
       "change": "0",
       "roster": [
         {
@@ -1072,25 +1079,202 @@ export const WORLD_RANKING: {
     },
     {
       "rank": 11,
-      "team": "Astralis",
-      "teamKey": "Astralis",
-      "points": 220,
+      "team": "PARIVISION",
+      "teamKey": "PARIVISION",
+      "points": 178,
+      "change": "+9",
+      "roster": [
+        {
+          "nick": "HObbit",
+          "country": "KZ",
+          "hltvPlayerUrl": "https://www.hltv.org/player/8528/hobbit"
+        },
+        {
+          "nick": "FL1T",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/12732/fl1t"
+        },
+        {
+          "nick": "Jame",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/13776/jame"
+        },
+        {
+          "nick": "xiELO",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/22471/xielo"
+        },
+        {
+          "nick": "zweih",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/23685/zweih"
+        }
+      ],
+      "coach": {
+        "nick": "dastan",
+        "country": "KZ"
+      },
+      "honours": {
+        "count": 1,
+        "list": [
+          {
+            "event": "BLAST Bounty 2026 Season 1 Finals",
+            "date": "2026-01-25",
+            "place": "1st",
+            "tier": "S"
+          }
+        ]
+      },
+      "teamPageUrl": "https://www.hltv.org/team/12467/parivision",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/PARIVISION",
+      "confidence": "high"
+    },
+    {
+      "rank": 12,
+      "team": "MIBR",
+      "teamKey": "MIBR",
+      "points": 163,
       "change": "0",
       "roster": [
         {
-          "nick": "HooXi",
-          "country": "DK",
-          "hltvPlayerUrl": "https://www.hltv.org/player/10096/hooxi"
+          "nick": "LNZ",
+          "country": "SE",
+          "hltvPlayerUrl": "https://www.hltv.org/player/19310/lnz"
         },
+        {
+          "nick": "nqz",
+          "country": "BR",
+          "hltvPlayerUrl": "https://www.hltv.org/player/19694/nqz"
+        },
+        {
+          "nick": "insani",
+          "country": "BR",
+          "hltvPlayerUrl": "https://www.hltv.org/player/21037/insani"
+        },
+        {
+          "nick": "venomzera",
+          "country": "BR",
+          "hltvPlayerUrl": "https://www.hltv.org/player/21288/venomzera"
+        },
+        {
+          "nick": "tomaszin",
+          "country": "AR",
+          "hltvPlayerUrl": "https://www.hltv.org/player/22570/tomaszin"
+        }
+      ],
+      "coach": {
+        "nick": "LETN1",
+        "country": "RS"
+      },
+      "honours": {
+        "count": 0,
+        "list": []
+      },
+      "teamPageUrl": "https://www.hltv.org/team/9215/mibr",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/MIBR",
+      "confidence": "high"
+    },
+    {
+      "rank": 13,
+      "team": "1win",
+      "teamKey": "1win",
+      "points": 159,
+      "change": "+20",
+      "roster": [
+        {
+          "nick": "Ax1Le",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/16555/ax1le"
+        },
+        {
+          "nick": "nafany",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/16921/nafany"
+        },
+        {
+          "nick": "BELCHONOKK",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/19235/belchonokk"
+        },
+        {
+          "nick": "fame",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/20101/fame"
+        },
+        {
+          "nick": "ArtFr0st",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/21348/artfr0st"
+        }
+      ],
+      "coach": {
+        "nick": "groove",
+        "country": "RU"
+      },
+      "honours": {
+        "count": 0,
+        "list": []
+      },
+      "teamPageUrl": "https://www.hltv.org/team/10621/1win",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/1w_Team",
+      "confidence": "high"
+    },
+    {
+      "rank": 14,
+      "team": "BETBOOM",
+      "teamKey": "BETBOOM",
+      "points": 148,
+      "change": "-1",
+      "roster": [
+        {
+          "nick": "Boombl4",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/11840/boombl4"
+        },
+        {
+          "nick": "zorte",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/15662/zorte"
+        },
+        {
+          "nick": "S1ren",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/18506/s1ren"
+        },
+        {
+          "nick": "d1Ledez",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/20357/d1ledez"
+        },
+        {
+          "nick": "Magnojez",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/21667/magnojez"
+        }
+      ],
+      "coach": {
+        "nick": "Fierce",
+        "country": "RU"
+      },
+      "honours": {
+        "count": 0,
+        "list": []
+      },
+      "teamPageUrl": "https://www.hltv.org/team/12394/betboom",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/BetBoom_Team",
+      "confidence": "high"
+    },
+    {
+      "rank": 15,
+      "team": "Astralis",
+      "teamKey": "Astralis",
+      "points": 133,
+      "change": "-4",
+      "roster": [
         {
           "nick": "phzy",
           "country": "SE",
           "hltvPlayerUrl": "https://www.hltv.org/player/16726/phzy"
-        },
-        {
-          "nick": "jabbi",
-          "country": "DK",
-          "hltvPlayerUrl": "https://www.hltv.org/player/17956/jabbi"
         },
         {
           "nick": "Staehr",
@@ -1101,6 +1285,16 @@ export const WORLD_RANKING: {
           "nick": "ryu",
           "country": "LT",
           "hltvPlayerUrl": "https://www.hltv.org/player/21217/ryu"
+        },
+        {
+          "nick": "siuhy",
+          "country": "PL",
+          "hltvPlayerUrl": "https://www.hltv.org/player/16820/siuhy"
+        },
+        {
+          "nick": "cmtry",
+          "country": "UA",
+          "hltvPlayerUrl": "https://www.hltv.org/player/22674/cmtry"
         }
       ],
       "coach": {
@@ -1249,101 +1443,11 @@ export const WORLD_RANKING: {
       "confidence": "medium"
     },
     {
-      "rank": 12,
-      "team": "MIBR",
-      "teamKey": "MIBR",
-      "points": 169,
-      "change": "0",
-      "roster": [
-        {
-          "nick": "LNZ",
-          "country": "SE",
-          "hltvPlayerUrl": "https://www.hltv.org/player/19310/lnz"
-        },
-        {
-          "nick": "nqz",
-          "country": "BR",
-          "hltvPlayerUrl": "https://www.hltv.org/player/19694/nqz"
-        },
-        {
-          "nick": "insani",
-          "country": "BR",
-          "hltvPlayerUrl": "https://www.hltv.org/player/21037/insani"
-        },
-        {
-          "nick": "venomzera",
-          "country": "BR",
-          "hltvPlayerUrl": "https://www.hltv.org/player/21288/venomzera"
-        },
-        {
-          "nick": "tomaszin",
-          "country": "AR",
-          "hltvPlayerUrl": "https://www.hltv.org/player/22570/tomaszin"
-        }
-      ],
-      "coach": {
-        "nick": "LETN1",
-        "country": "RS"
-      },
-      "honours": {
-        "count": 0,
-        "list": []
-      },
-      "teamPageUrl": "https://www.hltv.org/team/9215/mibr",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/MIBR",
-      "confidence": "high"
-    },
-    {
-      "rank": 13,
-      "team": "BETBOOM",
-      "teamKey": "BETBOOM",
-      "points": 148,
-      "change": "+2",
-      "roster": [
-        {
-          "nick": "Boombl4",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/11840/boombl4"
-        },
-        {
-          "nick": "zorte",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/15662/zorte"
-        },
-        {
-          "nick": "S1ren",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/18506/s1ren"
-        },
-        {
-          "nick": "d1Ledez",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/20357/d1ledez"
-        },
-        {
-          "nick": "Magnojez",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/21667/magnojez"
-        }
-      ],
-      "coach": {
-        "nick": "Fierce",
-        "country": "RU"
-      },
-      "honours": {
-        "count": 0,
-        "list": []
-      },
-      "teamPageUrl": "https://www.hltv.org/team/12394/betboom",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/BetBoom_Team",
-      "confidence": "high"
-    },
-    {
-      "rank": 14,
+      "rank": 16,
       "team": "FaZe",
       "teamKey": "FaZe Clan",
-      "points": 147,
-      "change": "-1",
+      "points": 129,
+      "change": "-2",
       "roster": [
         {
           "nick": "frozen",
@@ -1493,56 +1597,11 @@ export const WORLD_RANKING: {
       "confidence": "high"
     },
     {
-      "rank": 15,
-      "team": "B8",
-      "teamKey": "B8",
-      "points": 130,
-      "change": "-1",
-      "roster": [
-        {
-          "nick": "alex666",
-          "country": "UA",
-          "hltvPlayerUrl": "https://www.hltv.org/player/20112/alex666"
-        },
-        {
-          "nick": "npl",
-          "country": "UA",
-          "hltvPlayerUrl": "https://www.hltv.org/player/21708/npl"
-        },
-        {
-          "nick": "kensizor",
-          "country": "UA",
-          "hltvPlayerUrl": "https://www.hltv.org/player/22842/kensizor"
-        },
-        {
-          "nick": "esenthial",
-          "country": "UA",
-          "hltvPlayerUrl": "https://www.hltv.org/player/23643/esenthial"
-        },
-        {
-          "nick": "s1zzi",
-          "country": "UA",
-          "hltvPlayerUrl": "https://www.hltv.org/player/25619/s1zzi"
-        }
-      ],
-      "coach": {
-        "nick": "maddened",
-        "country": "RU"
-      },
-      "honours": {
-        "count": 0,
-        "list": []
-      },
-      "teamPageUrl": "https://www.hltv.org/team/11241/b8",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/B8",
-      "confidence": "high"
-    },
-    {
-      "rank": 16,
+      "rank": 17,
       "team": "9z",
       "teamKey": "9z",
       "points": 124,
-      "change": "+1",
+      "change": "-1",
       "roster": [
         {
           "nick": "max",
@@ -1583,217 +1642,101 @@ export const WORLD_RANKING: {
       "confidence": "high"
     },
     {
-      "rank": 17,
-      "team": "The MongolZ",
-      "teamKey": "The MongolZ",
-      "points": 116,
-      "change": "-1",
+      "rank": 18,
+      "team": "M80",
+      "teamKey": "M80",
+      "points": 109,
+      "change": "+9",
       "roster": [
         {
-          "nick": "nin9",
-          "country": "MN",
-          "hltvPlayerUrl": "https://www.hltv.org/player/15072/nin9"
+          "nick": "slaxz-",
+          "country": "DE",
+          "hltvPlayerUrl": "https://www.hltv.org/player/15370/slaxz"
         },
         {
-          "nick": "bLitz",
-          "country": "MN",
-          "hltvPlayerUrl": "https://www.hltv.org/player/20194/blitz"
+          "nick": "Swisher",
+          "country": "US",
+          "hltvPlayerUrl": "https://www.hltv.org/player/16599/swisher"
         },
         {
-          "nick": "Techno",
-          "country": "MN",
-          "hltvPlayerUrl": "https://www.hltv.org/player/20275/techno"
+          "nick": "s1n",
+          "country": "DE",
+          "hltvPlayerUrl": "https://www.hltv.org/player/20104/s1n"
         },
         {
-          "nick": "910",
-          "country": "MN",
-          "hltvPlayerUrl": "https://www.hltv.org/player/21809/910"
+          "nick": "JBa",
+          "country": "US",
+          "hltvPlayerUrl": "https://www.hltv.org/player/21665/jba"
         },
         {
-          "nick": "cobrazera",
-          "country": "MN",
-          "hltvPlayerUrl": "https://www.hltv.org/player/23402/cobrazera"
+          "nick": "Lake",
+          "country": "US",
+          "hltvPlayerUrl": "https://www.hltv.org/player/22921/lake"
         }
       ],
       "coach": {
-        "nick": "maaRaa",
-        "country": "MN"
+        "nick": "dephh",
+        "country": "GB"
       },
       "honours": {
-        "count": 3,
-        "list": [
-          {
-            "event": "YaLLa Compass 2024",
-            "date": "2024-06-09",
-            "place": "1st",
-            "tier": "S"
-          },
-          {
-            "event": "Thunderpick World Championship 2024",
-            "date": "2024-11-03",
-            "place": "1st",
-            "tier": "S"
-          },
-          {
-            "event": "Esports World Cup 2025",
-            "date": "2025-08-24",
-            "place": "1st",
-            "tier": "S"
-          }
-        ]
+        "count": 0,
+        "list": []
       },
-      "teamPageUrl": "https://www.hltv.org/team/6248/the-mongolz",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/The_MongolZ",
+      "teamPageUrl": "https://www.hltv.org/team/12376/m80",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/M80",
       "confidence": "high"
     },
     {
-      "rank": 18,
-      "team": "magic",
-      "teamKey": "magic",
-      "points": 116,
-      "change": "0",
+      "rank": 19,
+      "team": "B8",
+      "teamKey": "B8",
+      "points": 99,
+      "change": "-4",
       "roster": [
         {
-          "nick": "MaSvAl",
-          "country": "BY",
-          "hltvPlayerUrl": "https://www.hltv.org/player/19874/masval"
-        },
-        {
-          "nick": "sFade8",
+          "nick": "alex666",
           "country": "UA",
-          "hltvPlayerUrl": "https://www.hltv.org/player/22075/sfade8"
+          "hltvPlayerUrl": "https://www.hltv.org/player/20112/alex666"
         },
         {
-          "nick": "AW",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/22076/aw"
+          "nick": "npl",
+          "country": "UA",
+          "hltvPlayerUrl": "https://www.hltv.org/player/21708/npl"
         },
         {
-          "nick": "mo0N",
-          "country": "KZ",
-          "hltvPlayerUrl": "https://www.hltv.org/player/23858/mo0n"
+          "nick": "kensizor",
+          "country": "UA",
+          "hltvPlayerUrl": "https://www.hltv.org/player/22842/kensizor"
         },
         {
-          "nick": "tenzy",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/24173/tenzy"
+          "nick": "esenthial",
+          "country": "UA",
+          "hltvPlayerUrl": "https://www.hltv.org/player/23643/esenthial"
+        },
+        {
+          "nick": "s1zzi",
+          "country": "UA",
+          "hltvPlayerUrl": "https://www.hltv.org/player/25619/s1zzi"
         }
       ],
       "coach": {
-        "nick": "eksiver",
+        "nick": "maddened",
         "country": "RU"
       },
       "honours": {
         "count": 0,
         "list": []
       },
-      "teamPageUrl": "https://www.hltv.org/team/13592/magic",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/Magic",
-      "confidence": "high"
-    },
-    {
-      "rank": 19,
-      "team": "GamerLegion",
-      "teamKey": "GamerLegion",
-      "points": 110,
-      "change": "0",
-      "roster": [
-        {
-          "nick": "Snax",
-          "country": "PL",
-          "hltvPlayerUrl": "https://www.hltv.org/player/2553/snax"
-        },
-        {
-          "nick": "REZ",
-          "country": "SE",
-          "hltvPlayerUrl": "https://www.hltv.org/player/9278/rez"
-        },
-        {
-          "nick": "Tauson",
-          "country": "DK",
-          "hltvPlayerUrl": "https://www.hltv.org/player/20301/tauson"
-        },
-        {
-          "nick": "FL4MUS",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/20994/fl4mus"
-        },
-        {
-          "nick": "hypex",
-          "country": "PL",
-          "hltvPlayerUrl": "https://www.hltv.org/player/23766/hypex"
-        }
-      ],
-      "coach": {
-        "nick": "imd",
-        "country": "PL"
-      },
-      "honours": {
-        "count": 0,
-        "list": []
-      },
-      "teamPageUrl": "https://www.hltv.org/team/9928/gamerlegion",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/GamerLegion",
+      "teamPageUrl": "https://www.hltv.org/team/11241/b8",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/B8",
       "confidence": "high"
     },
     {
       "rank": 20,
-      "team": "PARIVISION",
-      "teamKey": "PARIVISION",
-      "points": 108,
-      "change": "+1",
-      "roster": [
-        {
-          "nick": "HObbit",
-          "country": "KZ",
-          "hltvPlayerUrl": "https://www.hltv.org/player/8528/hobbit"
-        },
-        {
-          "nick": "FL1T",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/12732/fl1t"
-        },
-        {
-          "nick": "Jame",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/13776/jame"
-        },
-        {
-          "nick": "xiELO",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/22471/xielo"
-        },
-        {
-          "nick": "zweih",
-          "country": "RU",
-          "hltvPlayerUrl": "https://www.hltv.org/player/23685/zweih"
-        }
-      ],
-      "coach": {
-        "nick": "dastan",
-        "country": "KZ"
-      },
-      "honours": {
-        "count": 1,
-        "list": [
-          {
-            "event": "BLAST Bounty 2026 Season 1 Finals",
-            "date": "2026-01-25",
-            "place": "1st",
-            "tier": "S"
-          }
-        ]
-      },
-      "teamPageUrl": "https://www.hltv.org/team/12467/parivision",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/PARIVISION",
-      "confidence": "high"
-    },
-    {
-      "rank": 21,
       "team": "Envy",
       "teamKey": "Team EnVyUs",
-      "points": 102,
-      "change": "-1",
+      "points": 96,
+      "change": "+1",
       "roster": [
         {
           "nick": "Maka",
@@ -1892,11 +1835,120 @@ export const WORLD_RANKING: {
       "confidence": "medium"
     },
     {
+      "rank": 21,
+      "team": "The MongolZ",
+      "teamKey": "The MongolZ",
+      "points": 94,
+      "change": "-4",
+      "roster": [
+        {
+          "nick": "nin9",
+          "country": "MN",
+          "hltvPlayerUrl": "https://www.hltv.org/player/15072/nin9"
+        },
+        {
+          "nick": "bLitz",
+          "country": "MN",
+          "hltvPlayerUrl": "https://www.hltv.org/player/20194/blitz"
+        },
+        {
+          "nick": "Techno",
+          "country": "MN",
+          "hltvPlayerUrl": "https://www.hltv.org/player/20275/techno"
+        },
+        {
+          "nick": "910",
+          "country": "MN",
+          "hltvPlayerUrl": "https://www.hltv.org/player/21809/910"
+        },
+        {
+          "nick": "cobrazera",
+          "country": "MN",
+          "hltvPlayerUrl": "https://www.hltv.org/player/23402/cobrazera"
+        }
+      ],
+      "coach": {
+        "nick": "maaRaa",
+        "country": "MN"
+      },
+      "honours": {
+        "count": 3,
+        "list": [
+          {
+            "event": "YaLLa Compass 2024",
+            "date": "2024-06-09",
+            "place": "1st",
+            "tier": "S"
+          },
+          {
+            "event": "Thunderpick World Championship 2024",
+            "date": "2024-11-03",
+            "place": "1st",
+            "tier": "S"
+          },
+          {
+            "event": "Esports World Cup 2025",
+            "date": "2025-08-24",
+            "place": "1st",
+            "tier": "S"
+          }
+        ]
+      },
+      "teamPageUrl": "https://www.hltv.org/team/6248/the-mongolz",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/The_MongolZ",
+      "confidence": "high"
+    },
+    {
       "rank": 22,
+      "team": "GamerLegion",
+      "teamKey": "GamerLegion",
+      "points": 92,
+      "change": "-3",
+      "roster": [
+        {
+          "nick": "Snax",
+          "country": "PL",
+          "hltvPlayerUrl": "https://www.hltv.org/player/2553/snax"
+        },
+        {
+          "nick": "REZ",
+          "country": "SE",
+          "hltvPlayerUrl": "https://www.hltv.org/player/9278/rez"
+        },
+        {
+          "nick": "Tauson",
+          "country": "DK",
+          "hltvPlayerUrl": "https://www.hltv.org/player/20301/tauson"
+        },
+        {
+          "nick": "FL4MUS",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/20994/fl4mus"
+        },
+        {
+          "nick": "hypex",
+          "country": "PL",
+          "hltvPlayerUrl": "https://www.hltv.org/player/23766/hypex"
+        }
+      ],
+      "coach": {
+        "nick": "imd",
+        "country": "PL"
+      },
+      "honours": {
+        "count": 0,
+        "list": []
+      },
+      "teamPageUrl": "https://www.hltv.org/team/9928/gamerlegion",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/GamerLegion",
+      "confidence": "high"
+    },
+    {
+      "rank": 23,
       "team": "Nemiga",
       "teamKey": "Nemiga",
-      "points": 89,
-      "change": "+16",
+      "points": 84,
+      "change": "-1",
       "roster": [
         {
           "nick": "KaiR0N-",
@@ -1937,56 +1989,56 @@ export const WORLD_RANKING: {
       "confidence": "high"
     },
     {
-      "rank": 23,
-      "team": "Alliance",
-      "teamKey": "Alliance",
-      "points": 78,
-      "change": "-1",
+      "rank": 24,
+      "team": "magic",
+      "teamKey": "magic",
+      "points": 81,
+      "change": "-6",
       "roster": [
         {
-          "nick": "twist",
-          "country": "SE",
-          "hltvPlayerUrl": "https://www.hltv.org/player/7443/twist"
+          "nick": "MaSvAl",
+          "country": "BY",
+          "hltvPlayerUrl": "https://www.hltv.org/player/19874/masval"
         },
         {
-          "nick": "eraa",
-          "country": "SE",
-          "hltvPlayerUrl": "https://www.hltv.org/player/16487/eraa"
+          "nick": "lattykk",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/20700/lattykk"
         },
         {
-          "nick": "bobeksde",
-          "country": "SE",
-          "hltvPlayerUrl": "https://www.hltv.org/player/21159/bobeksde"
+          "nick": "sFade8",
+          "country": "UA",
+          "hltvPlayerUrl": "https://www.hltv.org/player/22075/sfade8"
         },
         {
-          "nick": "upE",
-          "country": "SE",
-          "hltvPlayerUrl": "https://www.hltv.org/player/22760/upe"
+          "nick": "AW",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/22076/aw"
         },
         {
-          "nick": "avid",
-          "country": "SE",
-          "hltvPlayerUrl": "https://www.hltv.org/player/22860/avid"
+          "nick": "tenzy",
+          "country": "RU",
+          "hltvPlayerUrl": "https://www.hltv.org/player/24173/tenzy"
         }
       ],
       "coach": {
-        "nick": "Hawk",
-        "country": "SE"
+        "nick": "eksiver",
+        "country": "RU"
       },
       "honours": {
         "count": 0,
         "list": []
       },
-      "teamPageUrl": "https://www.hltv.org/team/12474/alliance",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/Alliance",
+      "teamPageUrl": "https://www.hltv.org/team/13592/magic",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/Magic",
       "confidence": "high"
     },
     {
-      "rank": 24,
+      "rank": 25,
       "team": "Luminosity",
       "teamKey": "Luminosity Gaming",
-      "points": 78,
-      "change": "+6",
+      "points": 76,
+      "change": "-1",
       "roster": [
         {
           "nick": "Rainwaker",
@@ -2046,105 +2098,11 @@ export const WORLD_RANKING: {
       "confidence": "high"
     },
     {
-      "rank": 25,
-      "team": "Liquid",
-      "teamKey": "Team Liquid",
-      "points": 76,
-      "change": "-1",
-      "roster": [
-        {
-          "nick": "NAF",
-          "country": "CA",
-          "hltvPlayerUrl": "https://www.hltv.org/player/8520/naf"
-        },
-        {
-          "nick": "EliGE",
-          "country": "US",
-          "hltvPlayerUrl": "https://www.hltv.org/player/8738/elige"
-        },
-        {
-          "nick": "malbsMd",
-          "country": "GT",
-          "hltvPlayerUrl": "https://www.hltv.org/player/11617/malbsmd"
-        },
-        {
-          "nick": "JT",
-          "country": "ZA",
-          "hltvPlayerUrl": "https://www.hltv.org/player/11630/jt"
-        },
-        {
-          "nick": "Jorko",
-          "country": "BG",
-          "hltvPlayerUrl": "https://www.hltv.org/player/24203/jorko"
-        }
-      ],
-      "coach": {
-        "nick": "flashie",
-        "country": "HU"
-      },
-      "honours": {
-        "count": 8,
-        "list": [
-          {
-            "event": "cs_summit 2",
-            "date": "2018-02-11",
-            "place": "1st",
-            "tier": "S"
-          },
-          {
-            "event": "IEM Sydney 2019",
-            "date": "2019-05-05",
-            "place": "1st",
-            "tier": "S"
-          },
-          {
-            "event": "DreamHack Masters Dallas 2019",
-            "date": "2019-06-02",
-            "place": "1st",
-            "tier": "S"
-          },
-          {
-            "event": "ESL Pro League Season 9 Finals",
-            "date": "2019-06-23",
-            "place": "1st",
-            "tier": "S"
-          },
-          {
-            "event": "ESL One: Cologne 2019",
-            "date": "2019-07-07",
-            "place": "1st",
-            "tier": "S"
-          },
-          {
-            "event": "BLAST Pro Series Los Angeles 2019",
-            "date": "2019-07-14",
-            "place": "1st",
-            "tier": "S"
-          },
-          {
-            "event": "IEM Chicago 2019",
-            "date": "2019-07-21",
-            "place": "1st",
-            "tier": "S"
-          },
-          {
-            "event": "ESL Pro League Season 11: North America",
-            "date": "2020-04-12",
-            "place": "1st",
-            "tier": "S"
-          }
-        ]
-      },
-      "teamPageUrl": "https://www.hltv.org/team/5973/liquid",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/Team_Liquid",
-      "confidence": "medium"
-    },
-    {
       "rank": 26,
       "team": "Ninjas in Pyjamas",
       "teamKey": "Ninjas in Pyjamas",
-      "points": 75,
-      "change": "+11",
+      "points": 74,
+      "change": "0",
       "roster": [
         {
           "nick": "stavn",
@@ -2283,55 +2241,149 @@ export const WORLD_RANKING: {
     },
     {
       "rank": 27,
-      "team": "M80",
-      "teamKey": "M80",
-      "points": 73,
+      "team": "Liquid",
+      "teamKey": "Team Liquid",
+      "points": 71,
       "change": "-2",
       "roster": [
         {
-          "nick": "slaxz-",
-          "country": "DE",
-          "hltvPlayerUrl": "https://www.hltv.org/player/15370/slaxz"
+          "nick": "NAF",
+          "country": "CA",
+          "hltvPlayerUrl": "https://www.hltv.org/player/8520/naf"
         },
         {
-          "nick": "Swisher",
+          "nick": "EliGE",
           "country": "US",
-          "hltvPlayerUrl": "https://www.hltv.org/player/16599/swisher"
+          "hltvPlayerUrl": "https://www.hltv.org/player/8738/elige"
         },
         {
-          "nick": "s1n",
-          "country": "DE",
-          "hltvPlayerUrl": "https://www.hltv.org/player/20104/s1n"
+          "nick": "malbsMd",
+          "country": "GT",
+          "hltvPlayerUrl": "https://www.hltv.org/player/11617/malbsmd"
         },
         {
-          "nick": "JBa",
-          "country": "US",
-          "hltvPlayerUrl": "https://www.hltv.org/player/21665/jba"
+          "nick": "JT",
+          "country": "ZA",
+          "hltvPlayerUrl": "https://www.hltv.org/player/11630/jt"
         },
         {
-          "nick": "Lake",
-          "country": "US",
-          "hltvPlayerUrl": "https://www.hltv.org/player/22921/lake"
+          "nick": "Jorko",
+          "country": "BG",
+          "hltvPlayerUrl": "https://www.hltv.org/player/24203/jorko"
         }
       ],
       "coach": {
-        "nick": "dephh",
-        "country": "GB"
+        "nick": "flashie",
+        "country": "HU"
+      },
+      "honours": {
+        "count": 8,
+        "list": [
+          {
+            "event": "cs_summit 2",
+            "date": "2018-02-11",
+            "place": "1st",
+            "tier": "S"
+          },
+          {
+            "event": "IEM Sydney 2019",
+            "date": "2019-05-05",
+            "place": "1st",
+            "tier": "S"
+          },
+          {
+            "event": "DreamHack Masters Dallas 2019",
+            "date": "2019-06-02",
+            "place": "1st",
+            "tier": "S"
+          },
+          {
+            "event": "ESL Pro League Season 9 Finals",
+            "date": "2019-06-23",
+            "place": "1st",
+            "tier": "S"
+          },
+          {
+            "event": "ESL One: Cologne 2019",
+            "date": "2019-07-07",
+            "place": "1st",
+            "tier": "S"
+          },
+          {
+            "event": "BLAST Pro Series Los Angeles 2019",
+            "date": "2019-07-14",
+            "place": "1st",
+            "tier": "S"
+          },
+          {
+            "event": "IEM Chicago 2019",
+            "date": "2019-07-21",
+            "place": "1st",
+            "tier": "S"
+          },
+          {
+            "event": "ESL Pro League Season 11: North America",
+            "date": "2020-04-12",
+            "place": "1st",
+            "tier": "S"
+          }
+        ]
+      },
+      "teamPageUrl": "https://www.hltv.org/team/5973/liquid",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/Team_Liquid",
+      "confidence": "medium"
+    },
+    {
+      "rank": 28,
+      "team": "Alliance",
+      "teamKey": "Alliance",
+      "points": 70,
+      "change": "-5",
+      "roster": [
+        {
+          "nick": "twist",
+          "country": "SE",
+          "hltvPlayerUrl": "https://www.hltv.org/player/7443/twist"
+        },
+        {
+          "nick": "eraa",
+          "country": "SE",
+          "hltvPlayerUrl": "https://www.hltv.org/player/16487/eraa"
+        },
+        {
+          "nick": "bobeksde",
+          "country": "SE",
+          "hltvPlayerUrl": "https://www.hltv.org/player/21159/bobeksde"
+        },
+        {
+          "nick": "upE",
+          "country": "SE",
+          "hltvPlayerUrl": "https://www.hltv.org/player/22760/upe"
+        },
+        {
+          "nick": "avid",
+          "country": "SE",
+          "hltvPlayerUrl": "https://www.hltv.org/player/22860/avid"
+        }
+      ],
+      "coach": {
+        "nick": "Hawk",
+        "country": "SE"
       },
       "honours": {
         "count": 0,
         "list": []
       },
-      "teamPageUrl": "https://www.hltv.org/team/12376/m80",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/M80",
+      "teamPageUrl": "https://www.hltv.org/team/12474/alliance",
+      "liquipediaUrl": "https://liquipedia.net/counterstrike/Alliance",
       "confidence": "high"
     },
     {
-      "rank": 28,
+      "rank": 29,
       "team": "Inner Circle",
       "teamKey": "Inner Circle",
-      "points": 71,
-      "change": "-5",
+      "points": 70,
+      "change": "-1",
       "roster": [
         {
           "nick": "cptkurtka023",
@@ -2372,11 +2424,11 @@ export const WORLD_RANKING: {
       "confidence": "high"
     },
     {
-      "rank": 29,
+      "rank": 30,
       "team": "HEROIC",
       "teamKey": "Heroic",
-      "points": 64,
-      "change": "-3",
+      "points": 60,
+      "change": "-1",
       "roster": [
         {
           "nick": "Brollan",
@@ -2439,58 +2491,6 @@ export const WORLD_RANKING: {
       },
       "teamPageUrl": "https://www.hltv.org/team/7175/heroic",
       "liquipediaUrl": "https://liquipedia.net/counterstrike/Heroic",
-      "confidence": "high"
-    },
-    {
-      "rank": 30,
-      "team": "NRG",
-      "teamKey": "NRG Esports",
-      "points": 62,
-      "change": "-2",
-      "roster": [
-        {
-          "nick": "nitr0",
-          "country": "US",
-          "hltvPlayerUrl": "https://www.hltv.org/player/7687/nitr0"
-        },
-        {
-          "nick": "Sonic",
-          "country": "ZA",
-          "hltvPlayerUrl": "https://www.hltv.org/player/8711/sonic"
-        },
-        {
-          "nick": "hallzerk",
-          "country": "NO",
-          "hltvPlayerUrl": "https://www.hltv.org/player/12840/hallzerk"
-        },
-        {
-          "nick": "Grim",
-          "country": "US",
-          "hltvPlayerUrl": "https://www.hltv.org/player/13578/grim"
-        },
-        {
-          "nick": "Jeorge",
-          "country": "US",
-          "hltvPlayerUrl": "https://www.hltv.org/player/20333/jeorge"
-        }
-      ],
-      "coach": {
-        "nick": "daps",
-        "country": "CA"
-      },
-      "honours": {
-        "count": 1,
-        "list": [
-          {
-            "event": "cs_summit 3",
-            "date": "2018-11-04",
-            "place": "1st",
-            "tier": "S"
-          }
-        ]
-      },
-      "teamPageUrl": "https://www.hltv.org/team/6673/nrg",
-      "liquipediaUrl": "https://liquipedia.net/counterstrike/NRG",
       "confidence": "high"
     }
   ]
