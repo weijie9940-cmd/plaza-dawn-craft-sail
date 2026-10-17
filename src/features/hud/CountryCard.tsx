@@ -36,6 +36,7 @@ export function CountryCard() {
   const removeMarker = useGlobeStore((s) => s.removeMarker);
   const requestFlyTo = useGlobeStore((s) => s.requestFlyTo);
   const clearSelection = useGlobeStore((s) => s.clearSelection);
+  const closeCountryCard = useGlobeStore((s) => s.closeCountryCard);
   const sTierYear = useGlobeStore((s) => s.sTierYear);
   const highlightedTeam = useGlobeStore((s) => s.highlightedTeam);
   const setHighlightedTeam = useGlobeStore((s) => s.setHighlightedTeam);
@@ -375,7 +376,7 @@ export function CountryCard() {
 
   return (
     <article className="card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
-      <CloseCardButton onClick={clearSelection} />
+      <CloseCardButton onClick={closeCountryCard} />
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-medium tracking-tight text-fg">{country.nameZh}</h2>

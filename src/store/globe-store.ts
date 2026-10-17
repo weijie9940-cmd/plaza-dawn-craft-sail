@@ -29,6 +29,7 @@ type GlobeState = {
   pinMode: boolean;
   hoveredIso: string | null;
   selectedIso: string | null;
+  highlightIso: string | null;
   selectedMarker: SelectedMarker;
   visited: string[];
   customMarkers: CustomMarker[];
@@ -49,6 +50,7 @@ type GlobeState = {
   setHighlightedTeam: (team: string | null) => void;
   setPinMode: (v: boolean) => void;
   setHoveredIso: (iso: string | null) => void;
+  setHighlightIso: (iso: string | null) => void;
   selectCountry: (iso: string | null) => void;
   selectMarker: (marker: SelectedMarker) => void;
   toggleVisited: (iso: string) => void;
@@ -57,6 +59,7 @@ type GlobeState = {
   setPendingPin: (pin: { lat: number; lng: number } | null) => void;
   requestFlyTo: (lat: number, lng: number, radius?: number) => void;
   setPanelOpen: (v: boolean) => void;
+  closeCountryCard: () => void;
   clearSelection: () => void;
 };
 
@@ -76,6 +79,7 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
   pinMode: false,
   hoveredIso: null,
   selectedIso: null,
+  highlightIso: null,
   selectedMarker: null,
   visited: [],
   customMarkers: [],
@@ -115,19 +119,21 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
   setHighlightedTeam: (team) => set({ highlightedTeam: team }),
   setPinMode: (v) => set({ pinMode: v, pendingPin: v ? get().pendingPin : null }),
   setHoveredIso: (iso) => set({ hoveredIso: iso }),
+  setHighlightIso: (iso) => set({ highlightIso: iso }),
   selectCountry: (iso) =>
     set({
       selectedIso: iso,
+      highlightIso: iso,
       selectedMarker: null,
       pinMode: false,
       pendingPin: null,
     }),
   selectMarker: (marker) =>
-    set({
-      selectedMarker: marker,
-      selectedIso: null,
-      pinMode: false,
-    }),
+    set(
+      marker
+        ? { selectedMarker: marker, selectedIso: null, highlightIso: null, pinMode: false }
+        : { selectedMarker: null, pinMode: false },
+    ),
   toggleVisited: (iso) => {
     const visited = get().visited.includes(iso)
       ? get().visited.filter((id) => id !== iso)
@@ -147,6 +153,8 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
       pendingPin: null,
       pinMode: false,
       selectedMarker: { kind: "custom", id: next.id },
+      selectedIso: null,
+      highlightIso: null,
     });
     persist(get().visited, customMarkers);
   },
@@ -168,10 +176,12 @@ export const useGlobeStore = create<GlobeState>((set, get) => ({
     set(id ? { teamSnapshotId: id, panelOpen: false, rankingOpen: false } : { teamSnapshotId: null }),
   setRankingOpen: (v) =>
     set(v ? { rankingOpen: true, panelOpen: false, teamSnapshotId: null } : { rankingOpen: false }),
+  closeCountryCard: () => set({ selectedIso: null }),
   clearSelection: () =>
     set({
       selectedIso: null,
       selectedMarker: null,
+      highlightIso: null,
       pendingPin: null,
       hoveredIso: null,
       highlightedTeam: null,

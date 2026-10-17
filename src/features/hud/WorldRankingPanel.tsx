@@ -6,7 +6,7 @@ import { countryFlag } from "@/data/team-snapshots";
 import { WORLD_RANKING, type WorldRankingTeam } from "@/data/world-ranking";
 import { cn } from "@/lib/utils";
 import { useGlobeStore } from "@/store/globe-store";
-import { useIsDesktop } from "./TeamSnapshotPanel";
+import { CountryOnGlobe, useIsDesktop } from "./TeamSnapshotPanel";
 
 const TEAMS_ON_MAP = new Set(S_TIER_EVENTS.map((ev) => championKey(ev.champion)));
 
@@ -158,32 +158,37 @@ function TeamDetail({ team }: { team: WorldRankingTeam }) {
         <ul className="mt-2 grid grid-cols-2 gap-2">
           {team.roster.map((player) => {
             const countryZh = COUNTRY_BY_ISO.get(player.country)?.nameZh ?? player.country;
-            const content = (
-              <>
-                <p className="flex min-w-0 items-center text-sm font-medium text-fg">
-                  <span className="mr-1 shrink-0" aria-label={player.country}>
-                    {flagMark(player.country)}
-                  </span>
-                  <span className="min-w-0 truncate">{player.nick}</span>
-                </p>
-                <p className="truncate text-xs text-fg-muted">{countryZh}</p>
-              </>
-            );
             return (
               <li key={player.nick} className="min-w-0">
-                {player.hltvPlayerUrl !== null ? (
-                  <a
-                    href={player.hltvPlayerUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={`在 HLTV 查看 ${player.nick}`}
-                    className="block min-w-0 rounded-lg bg-white/5 px-2 py-1.5 hover:bg-white/10"
+                <div className="block min-w-0 rounded-lg bg-white/5 px-2 py-1.5">
+                  <p className="flex min-w-0 items-center text-sm font-medium text-fg">
+                    <CountryOnGlobe
+                      iso={player.country}
+                      className="mr-1 inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center"
+                    >
+                      <span aria-label={player.country}>{flagMark(player.country)}</span>
+                    </CountryOnGlobe>
+                    {player.hltvPlayerUrl !== null ? (
+                      <a
+                        href={player.hltvPlayerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`在 HLTV 查看 ${player.nick}`}
+                        className="min-w-0 truncate underline-offset-2 hover:underline"
+                      >
+                        {player.nick}
+                      </a>
+                    ) : (
+                      <span className="min-w-0 truncate">{player.nick}</span>
+                    )}
+                  </p>
+                  <CountryOnGlobe
+                    iso={player.country}
+                    className="flex min-h-11 w-full items-center truncate text-left text-xs text-fg-muted"
                   >
-                    {content}
-                  </a>
-                ) : (
-                  <div className="block min-w-0 rounded-lg bg-white/5 px-2 py-1.5">{content}</div>
-                )}
+                    {countryZh}
+                  </CountryOnGlobe>
+                </div>
               </li>
             );
           })}
@@ -191,12 +196,16 @@ function TeamDetail({ team }: { team: WorldRankingTeam }) {
       </section>
 
       {team.coach ? (
-        <p className="mt-3 text-sm text-fg">
-          教练 ·{" "}
-          <span className="mr-1" aria-label={team.coach.country}>
-            {flagMark(team.coach.country)}
-          </span>
-          {team.coach.nick}
+        <p className="mt-3 flex flex-wrap items-center gap-x-1 text-sm text-fg">
+          <span>教练 ·</span>
+          <CountryOnGlobe
+            iso={team.coach.country}
+            className="inline-flex min-h-11 items-center gap-1 px-1"
+          >
+            <span aria-label={team.coach.country}>{flagMark(team.coach.country)}</span>
+            <span>{COUNTRY_BY_ISO.get(team.coach.country)?.nameZh ?? team.coach.country}</span>
+          </CountryOnGlobe>
+          <span>{team.coach.nick}</span>
         </p>
       ) : null}
 

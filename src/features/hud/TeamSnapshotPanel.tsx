@@ -1,6 +1,6 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { X } from "lucide-react";
-import { COUNTRY_BY_ISO } from "@/data/countries";
+import { COUNTRY_BY_ISO, flyTargetForCountry } from "@/data/countries";
 import { majorEventId } from "@/data/major-trophy-photos";
 import { S_TIER_EVENTS } from "@/data/s-tier-events";
 import { countryFlag, teamSnapshot, type TeamSnapshot } from "@/data/team-snapshots";
@@ -24,6 +24,40 @@ export function useIsDesktop() {
 }
 
 const CONFIDENCE_LABEL = { high: "高", medium: "中", low: "低" } as const;
+
+export function CountryOnGlobe({
+  iso,
+  className,
+  children,
+}: {
+  iso: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  const target = flyTargetForCountry(iso);
+  if (!target) {
+    return <span className={className}>{children}</span>;
+  }
+  return (
+    <button
+      type="button"
+      title="在地球上查看"
+      className={cn(
+        "cursor-pointer rounded-md underline-offset-2 hover:bg-white/10 hover:text-marker-major hover:underline",
+        className,
+      )}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const store = useGlobeStore.getState();
+        store.requestFlyTo(target.lat, target.lng, 1.82);
+        store.setHighlightIso(iso);
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 
 function sourceLinks(sources: string[]) {
   const seen = new Map<string, string>();
@@ -90,52 +124,54 @@ export function TeamSnapshotView({
         <ul className="mt-2 grid grid-cols-2 gap-2">
           {snapshot.roster.map((player) => {
             const countryZh = COUNTRY_BY_ISO.get(player.country)?.nameZh ?? player.country;
-            const content = (
-              <>
-                <p className="flex items-center text-sm font-medium text-fg">
-                  <span className="mr-1 shrink-0" aria-label={player.country}>
-                    {countryFlag(player.country)}
-                  </span>
-                  <span className="truncate">{player.nick}</span>
-                  {player.standIn ? (
-                    <span className="ml-1 shrink-0 rounded bg-white/10 px-1 text-[10px] font-normal text-fg-muted">
-                      替补
-                    </span>
-                  ) : null}
-                </p>
-                <p className="truncate text-xs text-fg-muted">{countryZh}</p>
-              </>
-            );
-
+            const cardClass =
+              variant === "inline"
+                ? "block min-w-0 rounded-lg bg-white/5 px-2 py-1.5"
+                : "block min-w-0 rounded-lg bg-surface-2 px-2 py-1.5";
             return (
-              <li key={player.nick}>
-                {player.hltvPlayerUrl !== null ? (
-                  <a
-                    href={player.hltvPlayerUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={player.standIn ? `在 HLTV 查看 ${player.nick}（替补）` : `在 HLTV 查看 ${player.nick}`}
-                    aria-label={player.standIn ? `${player.nick}（替补）` : player.nick}
-                    className={
-                      variant === "inline"
-                        ? "block rounded-lg bg-white/5 px-2 py-1.5 hover:bg-white/10"
-                        : "block rounded-lg bg-surface-2 px-2 py-1.5 hover:bg-white/10"
-                    }
+              <li key={player.nick} className="min-w-0">
+                <div className={cardClass}>
+                  <p className="flex min-w-0 items-center text-sm font-medium text-fg">
+                    <CountryOnGlobe
+                      iso={player.country}
+                      className="mr-1 inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center"
+                    >
+                      <span aria-label={player.country}>{countryFlag(player.country)}</span>
+                    </CountryOnGlobe>
+                    {player.hltvPlayerUrl !== null ? (
+                      <a
+                        href={player.hltvPlayerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={
+                          player.standIn ? `在 HLTV 查看 ${player.nick}（替补）` : `在 HLTV 查看 ${player.nick}`
+                        }
+                        aria-label={player.standIn ? `${player.nick}（替补）` : player.nick}
+                        className="min-w-0 truncate underline-offset-2 hover:underline"
+                      >
+                        {player.nick}
+                      </a>
+                    ) : (
+                      <span
+                        aria-label={player.standIn ? `${player.nick}（替补）` : player.nick}
+                        className="min-w-0 truncate"
+                      >
+                        {player.nick}
+                      </span>
+                    )}
+                    {player.standIn ? (
+                      <span className="ml-1 shrink-0 rounded bg-white/10 px-1 text-[10px] font-normal text-fg-muted">
+                        替补
+                      </span>
+                    ) : null}
+                  </p>
+                  <CountryOnGlobe
+                    iso={player.country}
+                    className="flex min-h-11 w-full items-center truncate text-left text-xs text-fg-muted"
                   >
-                    {content}
-                  </a>
-                ) : (
-                  <div
-                    aria-label={player.standIn ? `${player.nick}（替补）` : player.nick}
-                    className={
-                      variant === "inline"
-                        ? "block rounded-lg bg-white/5 px-2 py-1.5"
-                        : "block rounded-lg bg-surface-2 px-2 py-1.5"
-                    }
-                  >
-                    {content}
-                  </div>
-                )}
+                    {countryZh}
+                  </CountryOnGlobe>
+                </div>
               </li>
             );
           })}
@@ -143,12 +179,18 @@ export function TeamSnapshotView({
       </section>
 
       {snapshot.coach ? (
-        <p className="mt-3 text-sm text-fg">
-          教练 ·{" "}
+        <p className="mt-3 flex flex-wrap items-center gap-x-1 text-sm text-fg">
+          <span>教练 ·</span>
           {snapshot.coach.country ? (
-            <span className="mr-1" aria-label={snapshot.coach.country}>
-              {countryFlag(snapshot.coach.country)}
-            </span>
+            <CountryOnGlobe
+              iso={snapshot.coach.country}
+              className="inline-flex min-h-11 items-center gap-1 px-1"
+            >
+              <span aria-label={snapshot.coach.country}>{countryFlag(snapshot.coach.country)}</span>
+              <span>
+                {COUNTRY_BY_ISO.get(snapshot.coach.country)?.nameZh ?? snapshot.coach.country}
+              </span>
+            </CountryOnGlobe>
           ) : null}
           {snapshot.coach.hltvPlayerUrl ? (
             <a
