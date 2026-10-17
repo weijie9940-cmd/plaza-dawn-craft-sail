@@ -3,7 +3,7 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "ORBITAL 寰宇";
+const APP_NAME = "ORBITAL · CS 电竞版图";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -11,7 +11,10 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: APP_NAME },
-      { name: "description", content: "深色太空主题的交互式 3D 地球仪：旋转、昼夜、国家点亮与自定义标记。" },
+      {
+        name: "description",
+        content: "交互式 3D 地球，标出 CS 电竞 S 级赛事与 Major 的举办城市、冠军和当场 MVP。",
+      },
       { name: "theme-color", content: "#05070c" },
     ],
     links: [

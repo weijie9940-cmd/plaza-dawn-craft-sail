@@ -29,7 +29,7 @@ export function App() {
 
   return (
     <main className="relative h-dvh w-full overflow-hidden bg-bg text-fg">
-      <h1 className="sr-only">ORBITAL 寰宇 · 交互式 3D 地球仪</h1>
+      <h1 className="sr-only">ORBITAL · CS 电竞版图</h1>
       {mounted ? (
         <div className="absolute inset-0">
           <Suspense fallback={null}>

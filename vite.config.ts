@@ -142,6 +142,13 @@ function authPopupPlugin(): Plugin {
   };
 }
 
+/**
+ * EdgeOne Pages serves a static directory. `DEPLOY_TARGET=edgeone` (set by
+ * `npm run build:edgeone`) prerenders an SPA shell and skips Nitro, so the
+ * build does not start a Vercel server or run database migrations.
+ */
+const edgeone = process.env.DEPLOY_TARGET === "edgeone";
+
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
@@ -169,8 +176,32 @@ export default defineConfig(({ command, isPreview }) => ({
     // PWA head + ?install=1 tutorial page; runs before Start/Nitro.
     grokPwaPlugin(),
     tailwindcss(),
-    tanstackStart(),
-    ...(command === "build" || isPreview
+    tanstackStart(
+      edgeone
+        ? {
+            // Full prerender of `/` so the static HTML matches the client
+            // hydration. SPA shell mode renders a pending placeholder and
+            // React then throws a hydration mismatch (minified error 418).
+            prerender: {
+              enabled: true,
+              crawlLinks: false,
+              autoStaticPathsDiscovery: true,
+              failOnError: true,
+            },
+            pages: [
+              {
+                path: "/",
+                prerender: {
+                  outputPath: "/index.html",
+                  autoSubfolderIndex: false,
+                },
+              },
+            ],
+          }
+        : {},
+    ),
+    // Vercel keeps the Nitro server. EdgeOne is a static host, so skip it.
+    ...((command === "build" || isPreview) && !edgeone
       ? [
           nitro({
             preset: "vercel",

@@ -49,6 +49,7 @@ export function EventMvp({
           MVP：<span className="font-medium text-fg">{mvpId}</span>
         </p>
         <p className="text-xs text-fg-subtle">{team}</p>
+        <p className="mt-1 text-[11px] leading-snug text-fg-subtle">图片来源：HLTV</p>
       </figcaption>
     </figure>
   );

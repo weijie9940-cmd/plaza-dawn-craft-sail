@@ -73,7 +73,10 @@ export function MvpPhotos() {
                 failed || !openSrc ? (
                   <p className="px-2 pb-2 text-xs text-fg-subtle">暂无照片</p>
                 ) : (
-                  <MvpFrame id={row.id} src={openSrc} onError={() => setFailedId(row.id)} />
+                  <>
+                    <MvpFrame id={row.id} src={openSrc} onError={() => setFailedId(row.id)} />
+                    <p className="mb-2 text-[11px] leading-snug text-fg-subtle">图片来源：HLTV</p>
+                  </>
                 )
               ) : null}
             </li>
