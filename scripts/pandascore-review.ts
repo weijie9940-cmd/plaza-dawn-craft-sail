@@ -16,6 +16,8 @@ type Candidate = {
   serieName: string | null;
   serieFullName: string | null;
   stageWinnerName: string | null;
+  playoffStandingsLeader: { teamId: number; teamName: string; sourceUrl: string } | null;
+  standingsStatus: "not_applicable" | "not_checked" | "available" | "unavailable";
   tier: "s";
   videogameTitle: string | null;
   beginAt: string | null;
@@ -60,6 +62,8 @@ export function buildPandascoreReview(payload: unknown, now = new Date()) {
       serieName: optionalName(serie?.name),
       serieFullName: optionalName(serie?.full_name),
       stageWinnerName: optionalName(stageWinner?.name),
+      playoffStandingsLeader: null,
+      standingsStatus: /playoff|final/i.test(row.name) ? "not_checked" : "not_applicable",
       tier: "s",
       videogameTitle: typeof title?.slug === "string" ? title.slug :
         typeof row.videogame_title === "string" ? row.videogame_title : null,
@@ -90,6 +94,40 @@ export async function fetchPandascoreReview(
   if (Buffer.byteLength(raw, "utf8") > 2_000_000)
     throw new Error("PandaScore response exceeded size limit");
   const report = buildPandascoreReview(JSON.parse(raw), options.now);
+  await Promise.all(report.candidates.filter((candidate) => candidate.standingsStatus === "not_checked")
+    .slice(0, 8).map(async (candidate) => {
+      const id = candidate.sourceId.split(":").at(-1);
+      const standingsUrl = `https://api.pandascore.co/tournaments/${id}/standings`;
+      try {
+        const standingsResponse = await (options.fetcher ?? fetch)(standingsUrl, {
+          headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+          redirect: "error",
+          signal: AbortSignal.timeout(15_000),
+        });
+        if (!standingsResponse.ok || !standingsResponse.headers.get("content-type")?.includes("application/json"))
+          throw new Error("Standings unavailable");
+        if (Number(standingsResponse.headers.get("content-length")) > 1_000_000)
+          throw new Error("Standings too large");
+        const standingsRaw = await standingsResponse.text();
+        if (Buffer.byteLength(standingsRaw, "utf8") > 1_000_000)
+          throw new Error("Standings too large");
+        const standings = JSON.parse(standingsRaw);
+        if (!Array.isArray(standings)) throw new Error("Standings invalid");
+        const leaders = standings.filter((row) => object(row)?.rank === 1);
+        if (leaders.length !== 1) throw new Error("Standings leader ambiguous");
+        const team = object(object(leaders[0])?.team);
+        if (typeof team?.id !== "number" || !Number.isSafeInteger(team.id) || team.id <= 0 ||
+          !optionalName(team.name)) throw new Error("Standings leader invalid");
+        candidate.playoffStandingsLeader = {
+          teamId: team.id,
+          teamName: optionalName(team.name)!,
+          sourceUrl: standingsUrl,
+        };
+        candidate.standingsStatus = "available";
+      } catch {
+        candidate.standingsStatus = "unavailable";
+      }
+    }));
   const remainingHeader = response.headers.get("x-rate-limit-remaining");
   const remaining = remainingHeader === null ? NaN : Number(remainingHeader);
   return { ...report, rateLimitRemaining: Number.isFinite(remaining) ? remaining : null };

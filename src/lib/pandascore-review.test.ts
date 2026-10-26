@@ -31,6 +31,8 @@ test("PandaScore review keeps only completed S-tier candidates and never invents
     serieName: "Autumn",
     serieFullName: "Autumn 2026",
     stageWinnerName: "Example Team",
+    playoffStandingsLeader: null,
+    standingsStatus: "not_checked",
     tier: "s",
     videogameTitle: "cs-2",
     beginAt: "2026-10-20T10:00:00Z",
@@ -44,7 +46,7 @@ test("PandaScore requests are bounded, authenticated in headers, and report HTTP
   const token = "private-test-token";
   let requestedUrl = "";
   const fetcher: typeof fetch = async (input, init) => {
-    requestedUrl = String(input);
+    if (String(input).includes("/tournaments/past")) requestedUrl = String(input);
     assert.equal(new Headers(init?.headers).get("Authorization"), `Bearer ${token}`);
     return new Response(JSON.stringify([tournament]), {
       status: 200,
@@ -62,4 +64,27 @@ test("PandaScore requests are bounded, authenticated in headers, and report HTTP
     fetchPandascoreReview(token, { fetcher: async () => new Response("denied", { status: 401 }), now }),
     (error: Error) => error.message === "PandaScore request failed (HTTP 401)",
   );
+});
+
+test("playoff standings leader is review evidence, not an automatically published champion", async () => {
+  const requested: string[] = [];
+  const fetcher: typeof fetch = async (input) => {
+    const url = String(input);
+    requested.push(url);
+    const payload = url.includes("/standings")
+      ? [{ rank: 1, team: { id: 9, name: "Example Team" } }, { rank: 2, team: { id: 10, name: "Runner Up" } }]
+      : [tournament];
+    return new Response(JSON.stringify(payload), { headers: { "Content-Type": "application/json" } });
+  };
+  const report = await fetchPandascoreReview("private-test-token", { fetcher, now });
+  assert.equal(requested.length, 2);
+  assert.match(requested[1], /\/tournaments\/123\/standings$/);
+  assert.deepEqual(report.candidates[0].playoffStandingsLeader, {
+    teamId: 9,
+    teamName: "Example Team",
+    sourceUrl: "https://api.pandascore.co/tournaments/123/standings",
+  });
+  assert.deepEqual(report.candidates[0].reviewRequired, [
+    "tournament_champion", "major_or_s_classification", "offline_host_city", "venue",
+  ]);
 });

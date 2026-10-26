@@ -34,9 +34,9 @@ PandaScore 原始接口响应不能直接填入这里：需要先写提供商适
 
 ### PandaScore 免费层的第一步
 
-已提供 `npm run data:pandascore:review`。它从服务端环境变量 `PANDASCORE_API_TOKEN` 读取密钥，也支持一次性 `--stdin` 输入，以 Bearer 请求一页最近的 Counter-Strike S-tier 已结束赛事，最多 20 条；生成本地忽略提交的 `screenshots/pandascore-review.json`。报告列出赛段、所属联赛与系列赛、赛段胜者、结束时间及需要人工核对的字段，**不会**写入正式快照，也不会把赛段胜者当作整场赛事冠军。密钥不要放进 `VITE_` 变量、Git 或 URL。
+已提供 `npm run data:pandascore:review`。它从服务端环境变量 `PANDASCORE_API_TOKEN` 读取密钥，也支持一次性 `--stdin` 输入，以 Bearer 请求一页最近的 Counter-Strike S-tier 已结束赛事，最多 20 条；最多再查询 8 个季后赛/决赛赛段的积分榜。生成本地忽略提交的 `screenshots/pandascore-review.json`。报告列出赛段、所属联赛与系列赛、积分榜第 1 名、结束时间及需要人工核对的字段，**不会**写入正式快照，也不会把赛段榜首当作整场赛事冠军。积分榜不可用或榜首不唯一时明确标记，不填补猜测值。密钥不要放进 `VITE_` 变量、Git 或 URL。
 
-2026-10-26 的真实响应验证了认证与 20 条候选数据。首批候选包含 “Group A” 和 “Playoffs” 等赛段；最晚的结束时间为 2026-08-23。仅凭这一页不能推断近期赛事覆盖完整，也不能直接生成地图上的冠军城市记录。
+2026-10-26 的真实响应验证了认证与 20 条候选数据，并成功读取其中 6 个季后赛赛段的积分榜榜首。首批候选包含 “Group A” 和 “Playoffs” 等赛段；最晚的结束时间为 2026-08-23。仅凭这一页不能推断近期赛事覆盖完整，也不能直接生成地图上的冠军城市记录。
 
 工作流支持手动 `pandascore-review` 与每 6 小时自动检查：密钥保存在仓库 Actions 的 `PANDASCORE_API_TOKEN` secret，生成仅供下载核对的报告 artifact；这些检查不提交仓库快照，也不需要开启自动发布。工作流目前只存在于本地工作区，推送前无法在 GitHub 运行。
 
