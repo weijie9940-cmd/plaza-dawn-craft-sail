@@ -11,7 +11,11 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: APP_NAME },
-      { name: "description", content: "深色太空主题的交互式 3D 地球仪：旋转、昼夜、国家点亮与自定义标记。" },
+      {
+        name: "description",
+        content:
+          "在地球上探索 CS 电竞历史：回顾 Major 与 S 级赛事，追寻战队夺冠足迹、MVP 与经典阵容。",
+      },
       { name: "theme-color", content: "#05070c" },
     ],
     links: [

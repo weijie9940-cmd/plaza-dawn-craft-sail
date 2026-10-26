@@ -7,11 +7,7 @@ import {
   majorEventId,
   type MajorTrophyPhoto,
 } from "@/data/major-trophy-photos";
-import {
-  CHAMPION_LABEL,
-  championKey,
-  citiesUpToYear,
-} from "@/data/s-tier-events";
+import { CHAMPION_LABEL, championKey, citiesUpToYear } from "@/data/s-tier-events";
 import { formatCoord } from "@/lib/geo";
 import { useGlobeStore } from "@/store/globe-store";
 import { Button } from "@/components/ui/button";
@@ -27,7 +23,6 @@ const LIST_SHUT =
   "max-h-[max(8rem,min(14rem,calc(100dvh-34.75rem)))] sm:max-h-[max(8rem,min(14rem,calc(100dvh-33.5rem)))]";
 
 export function CountryCard() {
-
   const selectedIso = useGlobeStore((s) => s.selectedIso);
   const selectedMarker = useGlobeStore((s) => s.selectedMarker);
   const visited = useGlobeStore((s) => s.visited);
@@ -43,12 +38,24 @@ export function CountryCard() {
   const teamSnapshotId = useGlobeStore((s) => s.teamSnapshotId);
   const setTeamSnapshotId = useGlobeStore((s) => s.setTeamSnapshotId);
   const isDesktop = useIsDesktop();
+  const focusedEventId = useGlobeStore((s) => s.focusedEventId);
+  const mobileDetailsExpanded = useGlobeStore((s) => s.mobileDetailsExpanded);
   const [openMajorId, setOpenMajorId] = useState<string | null>(null);
   const [openMvpId, setOpenMvpId] = useState<string | null>(null);
   const [openCs2Mvp, setOpenCs2Mvp] = useState<string | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const stierCityId = selectedMarker?.kind === "stier" ? selectedMarker.id : null;
   const cs2CityId = selectedMarker?.kind === "cs2" ? selectedMarker.id : null;
+
+  useEffect(() => {
+    if (!focusedEventId || (!isDesktop && !mobileDetailsExpanded)) return;
+    const frame = requestAnimationFrame(() => {
+      listRef.current
+        ?.querySelector<HTMLElement>(`[data-event-id="${CSS.escape(focusedEventId)}"]`)
+        ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [focusedEventId, mobileDetailsExpanded, isDesktop, stierCityId]);
 
   useEffect(() => {
     setOpenMajorId(null);
@@ -77,7 +84,8 @@ export function CountryCard() {
     );
     if (!block) return;
     const list = listRef.current;
-    const top = block.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+    const top =
+      block.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
     list.scrollTo({ top, behavior: "smooth" });
   }, [teamSnapshotId, isDesktop]);
 
@@ -96,9 +104,12 @@ export function CountryCard() {
   if (selectedMarker?.kind === "stier") {
     const city = citiesUpToYear(sTierYear).find((m) => m.id === selectedMarker.id);
     if (!city) return null;
-    const majorCount = city.events.filter((e) => e.tier === "Major").length;
+    const displayEvents = highlightedTeam
+      ? city.events.filter((event) => championKey(event.champion) === highlightedTeam)
+      : city.events;
+    const majorCount = displayEvents.filter((e) => e.tier === "Major").length;
     return (
-      <article className="card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
+      <article className="detail-card card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
         <CloseCardButton onClick={clearSelection} />
         <p className="text-xs font-medium tracking-wide text-marker-major uppercase">
           {majorCount > 0 ? "Major · S 级赛事" : "S 级赛事"}
@@ -109,16 +120,17 @@ export function CountryCard() {
           <span className="ml-2 text-sm font-normal text-fg-muted">{city.city}</span>
         </h2>
         <p className="mt-1 text-sm text-fg-muted">
-          {city.events.length} 场 · {formatCoord(city.lat, city.lng)}
+          {highlightedTeam ? `${CHAMPION_LABEL[highlightedTeam] ?? highlightedTeam} · ` : ""}
+          {displayEvents.length} 场 · {formatCoord(city.lat, city.lng)}
         </p>
         <ul
           ref={listRef}
           className={cn(
-            "mt-3 space-y-2 overflow-y-auto pr-1",
+            "detail-event-list mt-3 space-y-2 overflow-y-auto pr-1",
             openMajorId || openMvpId || (!isDesktop && teamSnapshotId) ? LIST_OPEN : LIST_SHUT,
           )}
         >
-          {city.events.map((ev) => {
+          {displayEvents.map((ev) => {
             const key = championKey(ev.champion);
             const active = highlightedTeam === key;
             const isMajor = ev.tier === "Major";
@@ -133,7 +145,11 @@ export function CountryCard() {
               <li
                 key={`${ev.year}-${ev.month}-${ev.name}`}
                 data-major-id={eventId ?? undefined}
-                className="text-sm leading-snug"
+                data-event-id={evId}
+                className={cn(
+                  "event-row text-sm leading-snug",
+                  focusedEventId === evId && "event-row-focused",
+                )}
               >
                 <p className="text-fg">
                   <span className="font-mono tabular-nums text-fg-muted">
@@ -233,6 +249,11 @@ export function CountryCard() {
             );
           })}
         </ul>
+        {displayEvents.length === 0 ? (
+          <p className="mt-3 text-sm text-fg-muted">
+            所选战队在此暂无收录的冠军，清除战队筛选可查看全部赛事。
+          </p>
+        ) : null}
         {highlightedTeam ? (
           <p className="mt-3 text-xs text-fg-muted">
             正在查看 {CHAMPION_LABEL[highlightedTeam] ?? highlightedTeam} 王朝
@@ -248,10 +269,16 @@ export function CountryCard() {
             </button>
           </p>
         ) : (
-          <p className="mt-3 text-xs text-fg-subtle">点击战队名查看夺冠版图与战队快照，点击赛事名查看 MVP</p>
+          <p className="mt-3 text-xs text-fg-subtle">
+            点击战队名查看夺冠版图与战队快照，点击赛事名查看 MVP
+          </p>
         )}
         <div className="mt-4 flex gap-2">
-          <Button size="sm" variant="secondary" onClick={() => requestFlyTo(city.lat, city.lng, 1.62)}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => requestFlyTo(city.lat, city.lng, 1.62)}
+          >
             <Navigation className="size-3.5" />
             定位
           </Button>
@@ -264,7 +291,7 @@ export function CountryCard() {
     const city = CS2_MAJORS.find((m) => m.id === selectedMarker.id);
     if (!city) return null;
     return (
-      <article className="card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
+      <article className="detail-card card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
         <CloseCardButton onClick={clearSelection} />
         <p className="text-xs font-medium tracking-wide text-accent uppercase">CS Major</p>
         <h2 className="mt-1 font-display text-xl font-medium tracking-tight text-fg">
@@ -277,67 +304,73 @@ export function CountryCard() {
         <ul
           ref={listRef}
           className={cn(
-            "mt-3 space-y-1.5 overflow-y-auto pr-1",
+            "detail-event-list mt-3 space-y-1.5 overflow-y-auto pr-1",
             openCs2Mvp || (!isDesktop && teamSnapshotId) ? LIST_OPEN : LIST_SHUT,
           )}
         >
-          {city.events.map((ev) => {
-            const evId = CS2_MAJOR_EVENT_IDS[`${ev.year}|${ev.name}`];
-            const mvp = eventMvpWithPhoto(evId);
-            const mvpOpen = mvp !== null && openCs2Mvp === evId;
-            const snap = teamSnapshot(evId);
-            const snapOpen = snap !== null && teamSnapshotId === evId;
-            return (
-              <li key={`${ev.year}-${ev.name}`} className="text-sm">
-                <div className="flex justify-between gap-3">
-                  {mvp ? (
-                    <button
-                      type="button"
-                      className="min-w-0 text-left text-sm text-fg underline-offset-2 hover:underline"
-                      aria-expanded={mvpOpen}
-                      aria-controls={`event-mvp-${evId}`}
-                      title="查看本场 MVP"
-                      onClick={() => setOpenCs2Mvp(mvpOpen ? null : evId)}
-                    >
-                      {ev.year} {ev.name}
-                      <span className="ml-1 text-xs text-marker-major">MVP</span>
-                    </button>
-                  ) : (
-                    <span className="min-w-0 text-fg" title={ev.name}>
-                      {ev.year} {ev.name}
-                    </span>
-                  )}
-                  {snap ? (
-                    <button
-                      type="button"
-                      className="shrink-0 text-fg-muted underline-offset-2 hover:text-fg hover:underline"
-                      aria-expanded={snapOpen}
-                      aria-controls={`team-snapshot-${evId}`}
-                      title="查看当时的战队快照"
-                      onClick={() => setTeamSnapshotId(snapOpen ? null : evId)}
-                    >
-                      {ev.winner} ›
-                    </button>
-                  ) : (
-                    <span className="shrink-0 text-fg-muted">{ev.winner}</span>
-                  )}
-                </div>
-                {mvpOpen && mvp ? (
-                  <div id={`event-mvp-${evId}`}>
-                    <EventMvp mvpId={mvp.id} team={mvp.team} src={mvp.src} eventName={ev.name} />
+          {city.events
+            .filter((ev) => ev.year <= sTierYear)
+            .map((ev) => {
+              const evId = CS2_MAJOR_EVENT_IDS[`${ev.year}|${ev.name}`];
+              const mvp = eventMvpWithPhoto(evId);
+              const mvpOpen = mvp !== null && openCs2Mvp === evId;
+              const snap = teamSnapshot(evId);
+              const snapOpen = snap !== null && teamSnapshotId === evId;
+              return (
+                <li key={`${ev.year}-${ev.name}`} className="text-sm">
+                  <div className="flex justify-between gap-3">
+                    {mvp ? (
+                      <button
+                        type="button"
+                        className="min-w-0 text-left text-sm text-fg underline-offset-2 hover:underline"
+                        aria-expanded={mvpOpen}
+                        aria-controls={`event-mvp-${evId}`}
+                        title="查看本场 MVP"
+                        onClick={() => setOpenCs2Mvp(mvpOpen ? null : evId)}
+                      >
+                        {ev.year} {ev.name}
+                        <span className="ml-1 text-xs text-marker-major">MVP</span>
+                      </button>
+                    ) : (
+                      <span className="min-w-0 text-fg" title={ev.name}>
+                        {ev.year} {ev.name}
+                      </span>
+                    )}
+                    {snap ? (
+                      <button
+                        type="button"
+                        className="shrink-0 text-fg-muted underline-offset-2 hover:text-fg hover:underline"
+                        aria-expanded={snapOpen}
+                        aria-controls={`team-snapshot-${evId}`}
+                        title="查看当时的战队快照"
+                        onClick={() => setTeamSnapshotId(snapOpen ? null : evId)}
+                      >
+                        {ev.winner} ›
+                      </button>
+                    ) : (
+                      <span className="shrink-0 text-fg-muted">{ev.winner}</span>
+                    )}
                   </div>
-                ) : null}
-                {!isDesktop && snapOpen && snap ? (
-                  <div id={`team-snapshot-${evId}`}>
-                    <TeamSnapshotView snapshot={snap} eventName={ev.name} variant="inline" />
-                  </div>
-                ) : null}
-              </li>
-            );
-          })}
+                  {mvpOpen && mvp ? (
+                    <div id={`event-mvp-${evId}`}>
+                      <EventMvp mvpId={mvp.id} team={mvp.team} src={mvp.src} eventName={ev.name} />
+                    </div>
+                  ) : null}
+                  {!isDesktop && snapOpen && snap ? (
+                    <div id={`team-snapshot-${evId}`}>
+                      <TeamSnapshotView snapshot={snap} eventName={ev.name} variant="inline" />
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
         </ul>
         <div className="mt-4 flex gap-2">
-          <Button size="sm" variant="secondary" onClick={() => requestFlyTo(city.lat, city.lng, 1.62)}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => requestFlyTo(city.lat, city.lng, 1.62)}
+          >
             <Navigation className="size-3.5" />
             定位
           </Button>
@@ -350,14 +383,24 @@ export function CountryCard() {
     const marker = customMarkers.find((m) => m.id === selectedMarker.id);
     if (!marker) return null;
     return (
-      <article className="card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
+      <article className="detail-card card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
         <CloseCardButton onClick={clearSelection} />
         <p className="text-xs font-medium tracking-wide text-fg-muted uppercase">我的标记</p>
-        <h2 className="mt-1 font-display text-xl font-medium tracking-tight text-fg">{marker.name}</h2>
-        <p className="mt-1 font-mono text-xs text-fg-muted">{formatCoord(marker.lat, marker.lng)}</p>
-        {marker.note ? <p className="mt-3 text-sm leading-relaxed text-fg-muted">{marker.note}</p> : null}
+        <h2 className="mt-1 font-display text-xl font-medium tracking-tight text-fg">
+          {marker.name}
+        </h2>
+        <p className="mt-1 font-mono text-xs text-fg-muted">
+          {formatCoord(marker.lat, marker.lng)}
+        </p>
+        {marker.note ? (
+          <p className="mt-3 text-sm leading-relaxed text-fg-muted">{marker.note}</p>
+        ) : null}
         <div className="mt-4 flex gap-2">
-          <Button size="sm" variant="secondary" onClick={() => requestFlyTo(marker.lat, marker.lng, 1.62)}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => requestFlyTo(marker.lat, marker.lng, 1.62)}
+          >
             <Navigation className="size-3.5" />
             定位
           </Button>
@@ -375,11 +418,13 @@ export function CountryCard() {
   const lit = visited.includes(country.iso);
 
   return (
-    <article className="card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
+    <article className="detail-card card-enter pointer-events-auto relative w-full max-w-sm rounded-xl bg-surface p-4 pr-12 shadow-[var(--shadow-border)]">
       <CloseCardButton onClick={closeCountryCard} />
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-medium tracking-tight text-fg">{country.nameZh}</h2>
+          <h2 className="font-display text-xl font-medium tracking-tight text-fg">
+            {country.nameZh}
+          </h2>
           <p className="mt-0.5 text-sm text-fg-muted">{country.nameEn}</p>
         </div>
         <span className="rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-xs text-fg-muted">
@@ -402,7 +447,11 @@ export function CountryCard() {
           {lit ? <Check className="size-3.5" /> : <MapPin className="size-3.5" />}
           {lit ? "已点亮" : "点亮打卡"}
         </Button>
-        <Button size="sm" variant="secondary" onClick={() => requestFlyTo(country.lat, country.lng, 1.82)}>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => requestFlyTo(country.lat, country.lng, 1.82)}
+        >
           <Navigation className="size-3.5" />
           飞向这里
         </Button>
@@ -458,7 +507,9 @@ function MajorTrophyPhoto({
           </p>
         ) : (
           <>
-            {phase === "loading" ? <div className="absolute inset-0 animate-pulse bg-surface-2" aria-hidden /> : null}
+            {phase === "loading" ? (
+              <div className="absolute inset-0 animate-pulse bg-surface-2" aria-hidden />
+            ) : null}
             <img
               ref={imgRef}
               src={photo.src}
@@ -467,7 +518,10 @@ function MajorTrophyPhoto({
               height={photo.height}
               loading="lazy"
               decoding="async"
-              className={cn("absolute inset-0 h-full w-full object-cover", phase === "loading" && "opacity-0")}
+              className={cn(
+                "absolute inset-0 h-full w-full object-cover",
+                phase === "loading" && "opacity-0",
+              )}
               onLoad={() => setPhase("ready")}
               onError={() => setPhase("error")}
             />

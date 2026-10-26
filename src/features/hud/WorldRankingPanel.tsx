@@ -1,3 +1,4 @@
+import { DATA_SNAPSHOT } from "@/data/sync/snapshot";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { X } from "lucide-react";
 import { COUNTRY_BY_ISO } from "@/data/countries";
@@ -42,7 +43,7 @@ export function WorldRankingPanel() {
     <aside
       data-testid="world-ranking"
       className={cn(
-        "pointer-events-auto absolute top-20 z-20 flex flex-col overflow-hidden rounded-xl bg-surface shadow-[var(--shadow-border)]",
+        "ranking-panel pointer-events-auto absolute top-20 z-20 flex flex-col overflow-hidden rounded-xl bg-surface shadow-[var(--shadow-border)]",
         isDesktop
           ? "right-3 w-[min(100vw-2.5rem,24rem)] max-h-[calc(100dvh-20.5rem)] sm:right-5"
           : "right-3 left-3 max-h-[calc(100dvh-23rem)]",
@@ -60,7 +61,9 @@ export function WorldRankingPanel() {
           <X className="size-4" />
         </button>
         <div className="pr-10">
-          <p className="text-xs font-medium tracking-wide text-marker-major uppercase">HLTV 世界排名</p>
+          <p className="text-xs font-medium tracking-wide text-marker-major uppercase">
+            HLTV 世界排名
+          </p>
           <h2 className="mt-1 font-display text-xl font-medium tracking-tight text-fg">
             {WORLD_RANKING.rankingDate}
           </h2>
@@ -72,6 +75,11 @@ export function WorldRankingPanel() {
           >
             查看 HLTV 原榜单
           </a>
+          <p className="mt-2 text-[10px] text-fg-subtle">
+            {DATA_SNAPSHOT.rankingSync
+              ? `快照同步于 ${DATA_SNAPSHOT.rankingSync.lastSuccess.slice(0, 10)}`
+              : "内置排名快照 · 自动更新未接入"}
+          </p>
         </div>
       </header>
       <div ref={scrollerRef} className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
@@ -126,14 +134,19 @@ function RankingRow({
         className="flex w-full items-center gap-2 px-2 py-2 text-left hover:bg-white/5"
         onClick={onToggle}
       >
-        <span className="w-9 shrink-0 font-mono text-sm tabular-nums text-fg-muted">#{team.rank}</span>
+        <span className="w-9 shrink-0 font-mono text-sm tabular-nums text-fg-muted">
+          #{team.rank}
+        </span>
         <span className="min-w-0 flex-1 truncate text-sm font-medium text-fg">{team.team}</span>
         <span className="shrink-0 font-mono text-sm tabular-nums text-fg">
           {team.points}
           <span className="ml-0.5 text-[10px] font-sans text-fg-subtle">分</span>
         </span>
         <span
-          className={cn("w-10 shrink-0 text-right font-mono text-xs tabular-nums", change.className)}
+          className={cn(
+            "w-10 shrink-0 text-right font-mono text-xs tabular-nums",
+            change.className,
+          )}
           title={change.title}
         >
           {change.glyph}
@@ -249,7 +262,9 @@ function TeamDetail({ team }: { team: WorldRankingTeam }) {
 
 function Honours({ team }: { team: WorldRankingTeam }) {
   const [open, setOpen] = useState(false);
-  const list = [...team.honours.list].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  const list = [...team.honours.list].sort((a, b) =>
+    a.date < b.date ? 1 : a.date > b.date ? -1 : 0,
+  );
   const shown = open ? list : list.slice(0, 5);
 
   return (

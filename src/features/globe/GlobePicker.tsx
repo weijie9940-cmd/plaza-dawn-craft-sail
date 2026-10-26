@@ -53,7 +53,10 @@ export function GlobePicker() {
       const pt = intersectGlobe(camera, e.clientX, e.clientY, el);
       const store = useGlobeStore.getState();
       if (!pt) {
-        if (!store.pinMode) store.clearSelection();
+        if (!store.pinMode) {
+          store.stopStory();
+          store.clearSelection();
+        }
         return;
       }
       const { lat, lng } = vector3ToLatLng(pt);
@@ -68,6 +71,7 @@ export function GlobePicker() {
         const c = COUNTRY_BY_ISO.get(iso);
         if (c) store.requestFlyTo(c.lat, c.lng, 1.82);
       } else {
+        store.stopStory();
         store.clearSelection();
       }
     };

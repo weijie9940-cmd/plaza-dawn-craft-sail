@@ -1,3 +1,4 @@
+import { DATA_SNAPSHOT } from "./sync/snapshot.ts";
 export type MajorEvent = {
   name: string;
   year: number;
@@ -209,3 +210,16 @@ export const CS2_MAJORS: MajorCity[] = [
     events: [{ name: "StarLadder Budapest Major", year: 2025, winner: "Vitality" }],
   },
 ];
+
+// Extend the Major-only view from the same validated additions as the full map.
+for (const row of DATA_SNAPSHOT.events) {
+  if (row.event.tier !== "Major") continue;
+  let city = CS2_MAJORS.find(city => city.id === row.city.id);
+  if (!city) {
+    city = { ...row.city, country: "", countryZh: "国家资料待补充", events: [] };
+    CS2_MAJORS.push(city);
+  }
+  if (!city.events.some(event => event.name === row.event.name && event.year === row.event.year)) {
+    city.events.push({name: row.event.name,year: row.event.year,winner: row.event.champion});
+  }
+}
