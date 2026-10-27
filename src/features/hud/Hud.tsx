@@ -126,6 +126,7 @@ export function Hud() {
             ) : null}
           </ul>
           <p className="max-w-44 text-right text-[10px] leading-relaxed text-fg-subtle sm:max-w-xs">
+            <a href="https://xina-official.cn" className="pointer-events-auto underline">← Xina 作品集</a><br />
             <span className="hidden sm:inline">
               {s.showSTier ? (
                 <>

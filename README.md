@@ -16,7 +16,8 @@ npm run dev
 | Script | 作用 |
 | --- | --- |
 | `npm run dev` | 本地开发 |
-| `npm run build` | 生产构建（没有 `DATABASE_URL` 时会跳过数据库迁移） |
+| `npm run build` | 生产构建（Vercel / Nitro；没有 `DATABASE_URL` 时会跳过数据库迁移） |
+| `npm run build:edgeone` | EdgeOne Pages 静态构建，输出 `dist/client`，不跑数据库迁移 |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
 
