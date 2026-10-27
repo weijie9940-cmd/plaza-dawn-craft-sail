@@ -1,7 +1,112 @@
 {
   "schemaVersion": 1,
-  "events": [],
+  "events": [
+    {
+      "sourceId": "pandascore:tournament:21858",
+      "sourceUrl": "https://blast.tv/cs/tournaments/fissure-playground-3-2026",
+      "completed": true,
+      "resultType": "tournament_champion",
+      "endedAt": "2026-09-13T12:26:00Z",
+      "city": {
+        "id": "suzhou",
+        "city": "Suzhou",
+        "cityZh": "苏州",
+        "lat": 31.3,
+        "lng": 120.58
+      },
+      "event": {
+        "year": 2026,
+        "month": 9,
+        "name": "FISSURE Playground 3",
+        "cityZh": "苏州",
+        "cityEn": "Suzhou",
+        "venue": null,
+        "champion": "Legacy",
+        "tier": "S",
+        "note": null
+      }
+    },
+    {
+      "sourceId": "pandascore:tournament:21885",
+      "sourceUrl": "https://vitality.gg/en-uk/blogs/presse/team-vitality-gets-its-revenge-in-barcelona-and-wins-the-starladder-starseries-fall-2026",
+      "completed": true,
+      "resultType": "tournament_champion",
+      "endedAt": "2026-09-20T18:47:00Z",
+      "city": {
+        "id": "barcelona",
+        "city": "Barcelona",
+        "cityZh": "巴塞罗那",
+        "lat": 41.3854,
+        "lng": 2.1775
+      },
+      "event": {
+        "year": 2026,
+        "month": 9,
+        "name": "StarLadder StarSeries Fall 2026",
+        "cityZh": "巴塞罗那",
+        "cityEn": "Barcelona",
+        "venue": null,
+        "champion": "Team Vitality",
+        "tier": "S",
+        "note": null
+      }
+    },
+    {
+      "sourceId": "pandascore:tournament:22018",
+      "sourceUrl": "https://eslfaceitgroup.com/press/team-vitality-crowned-esl-pro-league-season-24-champions-following-the-leagues-return-to-the-big-stage-in-katowice/",
+      "completed": true,
+      "resultType": "tournament_champion",
+      "endedAt": "2026-10-11T18:11:00Z",
+      "city": {
+        "id": "katowice",
+        "city": "Katowice",
+        "cityZh": "卡托维兹",
+        "lat": 50.2649,
+        "lng": 19.0238
+      },
+      "event": {
+        "year": 2026,
+        "month": 10,
+        "name": "ESL Pro League Season 24",
+        "cityZh": "卡托维兹",
+        "cityEn": "Katowice",
+        "venue": "Spodek Arena",
+        "champion": "Team Vitality",
+        "tier": "S",
+        "note": null
+      }
+    },
+    {
+      "sourceId": "pandascore:tournament:22133",
+      "sourceUrl": "https://thunderpick.io/blog/twc-2026-finals-full-highlights",
+      "completed": true,
+      "resultType": "tournament_champion",
+      "endedAt": "2026-10-18T21:31:00Z",
+      "city": {
+        "id": "malta",
+        "city": "Malta",
+        "cityZh": "马耳他",
+        "lat": 35.9136,
+        "lng": 14.4786
+      },
+      "event": {
+        "year": 2026,
+        "month": 10,
+        "name": "Thunderpick World Championship 2026",
+        "cityZh": "马耳他",
+        "cityEn": "Malta",
+        "venue": "BLAST Arena Studios",
+        "champion": "FURIA",
+        "tier": "S",
+        "note": "赛事在马耳他阿塔德举行。"
+      }
+    }
+  ],
   "rankings": [],
-  "eventSync": null,
+  "eventSync": {
+    "lastSuccess": "2026-10-27T00:07:28.726Z",
+    "sourceAsOf": "2026-10-27T00:06:00Z",
+    "sourceName": "PandaScore 与公开赛事资料（人工核验）"
+  },
   "rankingSync": null
 }

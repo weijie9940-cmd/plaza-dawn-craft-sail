@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-已实现更新框架和消费链路。PandaScore 免费层的只读候选赛事检查器已通过真实连接验证；页面继续使用原始档案，不声称已获取最新赛果。没有修改历史阵容、MVP、图片或历史排名资料。
+已实现更新框架和消费链路。PandaScore 免费层的只读候选赛事检查器已通过真实连接验证；首次人工核验的 4 场赛事已写入增量快照，并可在预览中查看。没有修改历史阵容、MVP、图片或历史排名资料。候选报告尚未自动发布到页面。
 
 新增赛事会同步影响地图城市、搜索、年份上限、Major 总计、队伍历程和双队对比。HLTV 新版排名进入排名面板。Major 专用图层也会读取新增 Major；新城市尚无国家标签时明确显示资料待补充。
 
@@ -34,9 +34,11 @@ PandaScore 原始接口响应不能直接填入这里：需要先写提供商适
 
 ### PandaScore 免费层的第一步
 
-已提供 `npm run data:pandascore:review`。它从服务端环境变量 `PANDASCORE_API_TOKEN` 读取密钥，也支持一次性 `--stdin` 输入，以 Bearer 请求一页最近的 Counter-Strike S-tier 已结束赛事，最多 20 条；最多再查询 8 个季后赛/决赛赛段的积分榜。生成本地忽略提交的 `screenshots/pandascore-review.json`。报告列出赛段、所属联赛与系列赛、积分榜第 1 名、结束时间及需要人工核对的字段，**不会**写入正式快照，也不会把赛段榜首当作整场赛事冠军。积分榜不可用或榜首不唯一时明确标记，不填补猜测值。密钥不要放进 `VITE_` 变量、Git 或 URL。
+已提供 `npm run data:pandascore:review`。它从服务端环境变量 `PANDASCORE_API_TOKEN` 读取密钥，也支持一次性 `--stdin` 输入，以 Bearer 请求一页最近的 Counter-Strike A/S 级已结束赛段，最多 100 条；最多再查询 8 个季后赛/决赛赛段的积分榜。生成本地忽略提交的 `screenshots/pandascore-review.json`。报告列出赛段、所属联赛与系列赛、积分榜第 1 名、结束时间及需要人工核对的字段，**不会**写入正式快照，也不会把赛段榜首当作整场赛事冠军。积分榜不可用或榜首不唯一时明确标记，不填补猜测值。密钥不要放进 `VITE_` 变量、Git 或 URL。
 
-2026-10-26 的真实响应验证了认证与 20 条候选数据，并成功读取其中 6 个季后赛赛段的积分榜榜首。首批候选包含 “Group A” 和 “Playoffs” 等赛段；最晚的结束时间为 2026-08-23。仅凭这一页不能推断近期赛事覆盖完整，也不能直接生成地图上的冠军城市记录。
+2026-10-27 的真实响应验证了 A/S 筛选：100 条赛段中包括 10 月 18 日结束的 Thunderpick、10 月 11 日结束的 ESL Pro League Season 24，以及 9 月的 BLAST Open Porto。PandaScore 将这些赛段标为 A 级，而项目收录标准与其分级不同；A 级和 S 级都只是审核候选。赛事分级由 PandaScore 在赛段层级独立确定，口径可能与其他来源不同（[PandaScore 文档](https://developers.pandascore.co/docs/tournaments-in-depth)）。仅凭一页不能推断覆盖完整，也不能直接生成地图上的冠军城市记录。
+
+首次审核结果与来源见 [2026-10-27 审核记录](reviewed-events-2026-10-27.md)，标准化输入保存在 `src/data/sync/reviewed/2026-10-27.json`；正式快照及其历史版本由现有校验流程生成。
 
 工作流支持手动 `pandascore-review` 与每 6 小时自动检查：密钥保存在仓库 Actions 的 `PANDASCORE_API_TOKEN` secret，生成仅供下载核对的报告 artifact；这些检查不提交仓库快照，也不需要开启自动发布。工作流目前只存在于本地工作区，推送前无法在 GitHub 运行。
 

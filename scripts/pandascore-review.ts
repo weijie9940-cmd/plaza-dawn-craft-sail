@@ -4,9 +4,9 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const endpoint = new URL("https://api.pandascore.co/csgo/tournaments/past");
-endpoint.searchParams.set("filter[tier]", "s");
+endpoint.searchParams.set("filter[tier]", "s,a");
 endpoint.searchParams.set("sort", "-end_at");
-endpoint.searchParams.set("page[size]", "20");
+endpoint.searchParams.set("page[size]", "100");
 
 type Candidate = {
   sourceId: string;
@@ -18,7 +18,7 @@ type Candidate = {
   stageWinnerName: string | null;
   playoffStandingsLeader: { teamId: number; teamName: string; sourceUrl: string } | null;
   standingsStatus: "not_applicable" | "not_checked" | "available" | "unavailable";
-  tier: "s";
+  tier: "s" | "a";
   videogameTitle: string | null;
   beginAt: string | null;
   endAt: string;
@@ -34,6 +34,27 @@ function object(value: unknown): Record<string, unknown> | null {
 const optionalName = (value: unknown) =>
   typeof value === "string" && value.trim() ? value.trim() : null;
 
+async function readBoundedJson(response: Response, limit: number): Promise<unknown> {
+  if (Number(response.headers.get("content-length")) > limit)
+    throw new Error("PandaScore response exceeded size limit");
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("PandaScore response was empty");
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    while (true) {
+      const part = await reader.read();
+      if (part.done) break;
+      size += part.value.byteLength;
+      if (size > limit) throw new Error("PandaScore response exceeded size limit");
+      chunks.push(part.value);
+    }
+  } finally {
+    await reader.cancel().catch(() => undefined);
+  }
+  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+}
+
 export function buildPandascoreReview(payload: unknown, now = new Date()) {
   if (!Array.isArray(payload)) throw new Error("PandaScore tournament list is not an array");
   const candidates: Candidate[] = [];
@@ -45,7 +66,7 @@ export function buildPandascoreReview(payload: unknown, now = new Date()) {
     const endAt = row.end_at;
     if (
       typeof id !== "number" || !Number.isSafeInteger(id) || id <= 0 || seen.has(id) ||
-      typeof row.name !== "string" || !row.name.trim() || row.tier !== "s" ||
+      typeof row.name !== "string" || !row.name.trim() || (row.tier !== "s" && row.tier !== "a") ||
       typeof endAt !== "string" || !Number.isFinite(Date.parse(endAt)) ||
       Date.parse(endAt) > now.getTime()
     ) continue;
@@ -64,7 +85,7 @@ export function buildPandascoreReview(payload: unknown, now = new Date()) {
       stageWinnerName: optionalName(stageWinner?.name),
       playoffStandingsLeader: null,
       standingsStatus: /playoff|final/i.test(row.name) ? "not_checked" : "not_applicable",
-      tier: "s",
+      tier: row.tier,
       videogameTitle: typeof title?.slug === "string" ? title.slug :
         typeof row.videogame_title === "string" ? row.videogame_title : null,
       beginAt: typeof row.begin_at === "string" ? row.begin_at : null,
@@ -88,12 +109,7 @@ export async function fetchPandascoreReview(
   if (!response.ok) throw new Error(`PandaScore request failed (HTTP ${response.status})`);
   if (!response.headers.get("content-type")?.includes("application/json"))
     throw new Error("PandaScore returned non-JSON content");
-  if (Number(response.headers.get("content-length")) > 2_000_000)
-    throw new Error("PandaScore response exceeded size limit");
-  const raw = await response.text();
-  if (Buffer.byteLength(raw, "utf8") > 2_000_000)
-    throw new Error("PandaScore response exceeded size limit");
-  const report = buildPandascoreReview(JSON.parse(raw), options.now);
+  const report = buildPandascoreReview(await readBoundedJson(response, 8_000_000), options.now);
   await Promise.all(report.candidates.filter((candidate) => candidate.standingsStatus === "not_checked")
     .slice(0, 8).map(async (candidate) => {
       const id = candidate.sourceId.split(":").at(-1);
@@ -106,12 +122,7 @@ export async function fetchPandascoreReview(
         });
         if (!standingsResponse.ok || !standingsResponse.headers.get("content-type")?.includes("application/json"))
           throw new Error("Standings unavailable");
-        if (Number(standingsResponse.headers.get("content-length")) > 1_000_000)
-          throw new Error("Standings too large");
-        const standingsRaw = await standingsResponse.text();
-        if (Buffer.byteLength(standingsRaw, "utf8") > 1_000_000)
-          throw new Error("Standings too large");
-        const standings = JSON.parse(standingsRaw);
+        const standings = await readBoundedJson(standingsResponse, 1_000_000);
         if (!Array.isArray(standings)) throw new Error("Standings invalid");
         const leaders = standings.filter((row) => object(row)?.rank === 1);
         if (leaders.length !== 1) throw new Error("Standings leader ambiguous");

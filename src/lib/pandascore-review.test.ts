@@ -15,14 +15,17 @@ const tournament = {
   winner: { name: "Example Team" },
 };
 
-test("PandaScore review keeps only completed S-tier candidates and never invents a champion or city", () => {
+test("PandaScore review keeps completed A and S tier candidates for classification review", () => {
   const report = buildPandascoreReview([
     tournament,
     { ...tournament, id: 124, tier: "a" },
-    { ...tournament, id: 125, end_at: "2026-11-01T20:00:00Z" },
-    { ...tournament, id: 126, end_at: null },
+    { ...tournament, id: 125, tier: "b" },
+    { ...tournament, id: 126, end_at: "2026-11-01T20:00:00Z" },
+    { ...tournament, id: 127, end_at: null },
   ], now);
-  assert.equal(report.candidates.length, 1);
+  assert.equal(report.candidates.length, 2);
+  assert.equal(report.candidates[1].tier, "a");
+  assert.ok(report.candidates[1].reviewRequired.includes("major_or_s_classification"));
   assert.deepEqual(report.candidates[0], {
     sourceId: "pandascore:tournament:123",
     sourceUrl: "https://api.pandascore.co/tournaments/123",
@@ -55,7 +58,8 @@ test("PandaScore requests are bounded, authenticated in headers, and report HTTP
   };
   const report = await fetchPandascoreReview(token, { fetcher, now });
   assert.match(requestedUrl, /^https:\/\/api\.pandascore\.co\/csgo\/tournaments\/past\?/);
-  assert.match(requestedUrl, /page%5Bsize%5D=20/);
+  assert.match(requestedUrl, /page%5Bsize%5D=100/);
+  assert.match(requestedUrl, /filter%5Btier%5D=s%2Ca/);
   assert.equal(requestedUrl.includes(token), false);
   assert.equal(report.rateLimitRemaining, 999);
   assert.equal(report.candidates.length, 1);
@@ -87,4 +91,18 @@ test("playoff standings leader is review evidence, not an automatically publishe
   assert.deepEqual(report.candidates[0].reviewRequired, [
     "tournament_champion", "major_or_s_classification", "offline_host_city", "venue",
   ]);
+});
+
+test("candidate responses allow realistic A/S pages while rejecting oversized streams", async () => {
+  const payload = JSON.stringify([{ ...tournament, name: "Group A", padding: "x".repeat(2_100_000) }]);
+  const jsonHeaders = { "Content-Type": "application/json" };
+  const report = await fetchPandascoreReview("test", {
+    now,
+    fetcher: async () => new Response(payload, { headers: jsonHeaders }),
+  });
+  assert.equal(report.candidates.length, 1);
+  await assert.rejects(fetchPandascoreReview("test", {
+    now,
+    fetcher: async () => new Response(new Uint8Array(8_000_001), { headers: jsonHeaders }),
+  }), /PandaScore response exceeded size limit/);
 });
