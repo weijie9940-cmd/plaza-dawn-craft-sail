@@ -77,6 +77,16 @@ export function GlobeControls() {
     const target = latLngToVector3(flyTo.lat, flyTo.lng, 1, new Vector3());
     const to = new Spherical().setFromVector3(target);
     to.radius = flyTo.radius;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      sph.current.radius = to.radius;
+      sph.current.phi = to.phi;
+      sph.current.theta += shortestAngle(sph.current.theta, to.theta);
+      fly.current = null;
+      vel.current.phi = 0;
+      vel.current.theta = 0;
+      idleAt.current = performance.now();
+      return;
+    }
     fly.current = {
       fromR: sph.current.radius,
       fromPhi: sph.current.phi,

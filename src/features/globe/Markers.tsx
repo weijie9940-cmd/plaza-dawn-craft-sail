@@ -10,6 +10,7 @@ import {
   type PerspectiveCamera,
 } from "three";
 import { CS2_MAJORS } from "@/data/cs2-majors";
+import { citiesUpToYear } from "@/data/s-tier-events";
 import { MARKER_RADIUS, latLngToVector3 } from "@/lib/geo";
 import { useGlobeStore } from "@/store/globe-store";
 import { horizonCullCacheKey, horizonCullOnBeforeCompile, isFrontHemisphere } from "./horizon-cull";
@@ -71,12 +72,11 @@ const PulseMarker = memo(function PulseMarker({
       const u = (t * 0.55) % 1;
       ring.current.scale.setScalar(base * (1.2 + u * 2.2));
       const mat = ring.current.material as SpriteMaterial;
-      mat.opacity = (1 - u) * 0.45;
+      mat.opacity = (1 - u) * (selected ? 0.45 : 0.09);
     }
     if (hit.current) {
       const fov = ((camera as PerspectiveCamera).fov * Math.PI) / 180;
-      const world =
-        (28 / Math.max(size.height, 1)) * 2 * Math.tan(fov / 2) * Math.max(dist, 1.2);
+      const world = (28 / Math.max(size.height, 1)) * 2 * Math.tan(fov / 2) * Math.max(dist, 1.2);
       hit.current.scale.setScalar(Math.max(world, base * 1.8));
     }
   });
@@ -88,6 +88,7 @@ const PulseMarker = memo(function PulseMarker({
       ref={group}
       position={pos}
       onClick={(e) => {
+        if (useGlobeStore.getState().pinMode) return;
         if (globeInput.movedPx >= 5) return;
         if (!isFrontHemisphere(lat, lng, e.camera.position)) return;
         e.stopPropagation();
@@ -130,27 +131,38 @@ const PulseMarker = memo(function PulseMarker({
 });
 
 export function Markers() {
+  const comparisonTeams = useGlobeStore((s) => s.comparisonTeams);
   const custom = useGlobeStore((s) => s.customMarkers);
   const selected = useGlobeStore((s) => s.selectedMarker);
   const showCs2Majors = useGlobeStore((s) => s.showCs2Majors);
+  const showSTier = useGlobeStore((s) => s.showSTier);
+  const year = useGlobeStore((s) => s.sTierYear);
+  const stierCities = useMemo(() => (showSTier ? citiesUpToYear(year) : []), [showSTier, year]);
   const cs2Tex = useMemo(() => makeGlowTexture(CS2), []);
   const pinTex = useMemo(() => makeGlowTexture(CUSTOM), []);
 
   return (
     <group>
-      {showCs2Majors
-        ? CS2_MAJORS.map((m) => (
-            <PulseMarker
-              key={m.id}
-              id={m.id}
-              kind="cs2"
-              lat={m.lat}
-              lng={m.lng}
-              color={CS2}
-              texture={cs2Tex}
-              selected={selected?.kind === "cs2" && selected.id === m.id}
-            />
-          ))
+      {showCs2Majors && !comparisonTeams
+        ? CS2_MAJORS.filter((m) => m.events.some((event) => event.year <= year))
+            .filter(
+              (m) =>
+                !stierCities.some(
+                  (city) => Math.abs(city.lat - m.lat) < 0.4 && Math.abs(city.lng - m.lng) < 0.4,
+                ),
+            )
+            .map((m) => (
+              <PulseMarker
+                key={m.id}
+                id={m.id}
+                kind="cs2"
+                lat={m.lat}
+                lng={m.lng}
+                color={CS2}
+                texture={cs2Tex}
+                selected={selected?.kind === "cs2" && selected.id === m.id}
+              />
+            ))
         : null}
       {custom.map((m) => (
         <PulseMarker

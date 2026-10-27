@@ -1,3 +1,4 @@
+import { DATA_SNAPSHOT } from "./sync/snapshot.ts";
 export type EventTier = "Major" | "S";
 
 export type STierEvent = {
@@ -24,7 +25,7 @@ export type STierCity = {
 };
 
 /** LAN S-tier / Major events 2013–2026. Source: HLTV.org, compiled 2026-09. */
-export const S_TIER_EVENTS: STierEvent[] = [
+export const BASE_S_TIER_EVENTS: STierEvent[] = [
   { year: 2013, month: 4, name: "SLTV StarSeries V Finals", cityZh: "基辅", cityEn: "Kyiv", venue: null, champion: "Virtus.pro", tier: "S", note: null },
   { year: 2013, month: 6, name: "DreamHack Summer 2013", cityZh: "延雪平", cityEn: "Jönköping", venue: "Elmia", champion: "Ninjas in Pyjamas", tier: "S", note: null },
   { year: 2013, month: 6, name: "RaidCall EMS One Summer 2013 Finals", cityZh: "科隆", cityEn: "Cologne", venue: null, champion: "VeryGames", tier: "S", note: null },
@@ -228,9 +229,10 @@ export const S_TIER_EVENTS: STierEvent[] = [
   { year: 2026, month: 9, name: "BLAST Open Porto 2026", cityZh: "波尔图", cityEn: "Porto", venue: "Super Bock Arena", champion: "Team Spirit", tier: "S", note: null },
 ];
 
+export const S_TIER_EVENTS: STierEvent[] = [...BASE_S_TIER_EVENTS, ...DATA_SNAPSHOT.events.map(row => row.event)];
 export const STIER_YEAR_MIN = 2013;
-export const STIER_YEAR_MAX = 2026;
-export const STIER_SOURCE = "数据来源：HLTV.org，整理于 2026-09";
+export const STIER_YEAR_MAX = Math.max(2026, ...S_TIER_EVENTS.map(event => event.year));
+export const STIER_SOURCE = DATA_SNAPSHOT.eventSync ? `基础档案 HLTV.org · 增量 ${DATA_SNAPSHOT.eventSync.sourceName} · 来源截至 ${DATA_SNAPSHOT.eventSync.sourceAsOf.slice(0, 10)}` : "内置赛事档案：HLTV.org，整理于 2026-09 · 自动更新未接入";
 
 type CityMeta = { id: string; city: string; cityZh: string; lat: number; lng: number };
 
@@ -314,6 +316,9 @@ const CITY_BY_EN: Record<string, CityMeta> = {
   Haikou: { id: "haikou", city: "Haikou", cityZh: "海口", lat: 20.044, lng: 110.1999 },
   Changzhou: { id: "changzhou", city: "Changzhou", cityZh: "常州", lat: 31.8107, lng: 119.9741 },
 };
+
+export const BASE_CITY_METADATA = Object.values(CITY_BY_EN).filter((city, index, all) => all.findIndex(row => row.id === city.id) === index);
+for (const row of DATA_SNAPSHOT.events) CITY_BY_EN[row.event.cityEn] = row.city;
 
 const HOLY_IDS = new Set(["katowice", "cologne", "copenhagen", "dallas", "malta", "stockholm", "rio"]);
 

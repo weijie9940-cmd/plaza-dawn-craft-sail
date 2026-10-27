@@ -1,3 +1,4 @@
+import { DATA_SNAPSHOT } from "./sync/snapshot.ts";
 // 来源 tmp/current-ranking-2.json（HLTV 2026-10-12 周榜，2026-10 验收）
 // 生成脚本 tmp/22-gen-ranking.cjs
 // 勿手改，改数据请重跑脚本
@@ -20,7 +21,7 @@ export type WorldRankingTeam = {
   liquipediaUrl: string;
   confidence: "high" | "medium" | "low";
 };
-export const WORLD_RANKING: {
+export const BASE_WORLD_RANKING: {
   rankingDate: string;
   pageTitle: string;
   sourceUrl: string;
@@ -2495,3 +2496,5 @@ export const WORLD_RANKING: {
     }
   ]
 };
+
+export const WORLD_RANKING: typeof BASE_WORLD_RANKING = DATA_SNAPSHOT.rankings.at(-1) ?? BASE_WORLD_RANKING;
