@@ -1,3 +1,4 @@
+import { DATA_SNAPSHOT } from "./sync/snapshot.ts";
 export type EventTier = "Major" | "S";
 
 export type STierEvent = {
@@ -24,7 +25,7 @@ export type STierCity = {
 };
 
 /** LAN S-tier / Major events 2013–2026. Source: HLTV.org, compiled 2026-09. */
-export const S_TIER_EVENTS: STierEvent[] = [
+export const BASE_S_TIER_EVENTS: STierEvent[] = [
   { year: 2013, month: 4, name: "SLTV StarSeries V Finals", cityZh: "基辅", cityEn: "Kyiv", venue: null, champion: "Virtus.pro", tier: "S", note: null },
   { year: 2013, month: 6, name: "DreamHack Summer 2013", cityZh: "延雪平", cityEn: "Jönköping", venue: "Elmia", champion: "Ninjas in Pyjamas", tier: "S", note: null },
   { year: 2013, month: 6, name: "RaidCall EMS One Summer 2013 Finals", cityZh: "科隆", cityEn: "Cologne", venue: null, champion: "VeryGames", tier: "S", note: null },
@@ -112,7 +113,7 @@ export const S_TIER_EVENTS: STierEvent[] = [
   { year: 2018, month: 4, name: "DreamHack Masters Marseille 2018", cityZh: "马赛", cityEn: "Marseille", venue: "Le Dôme de Marseille", champion: "Astralis", tier: "S", note: null },
   { year: 2018, month: 5, name: "IEM Sydney 2018", cityZh: "悉尼", cityEn: "Sydney", venue: "Qudos Bank Arena", champion: "FaZe Clan", tier: "S", note: null },
   { year: 2018, month: 5, name: "ESL Pro League Season 7 Finals", cityZh: "达拉斯", cityEn: "Dallas", venue: "Verizon Theatre", champion: "Astralis", tier: "S", note: null },
-  { year: 2018, month: 5, name: "cs_summit 2", cityZh: "洛杉矶", cityEn: "Los Angeles", venue: null, champion: "Team Liquid", tier: "S", note: null },
+  { year: 2018, month: 2, name: "cs_summit 2", cityZh: "洛杉矶", cityEn: "Los Angeles", venue: null, champion: "Team Liquid", tier: "S", note: null },
   { year: 2018, month: 6, name: "StarSeries i-League Season 5", cityZh: "基辅", cityEn: "Kyiv", venue: "National Palace of Arts \"Ukraina\"", champion: "Natus Vincere", tier: "S", note: null },
   { year: 2018, month: 6, name: "ECS Season 5 Finals", cityZh: "伦敦", cityEn: "London", venue: "SSE Arena Wembley", champion: "Astralis", tier: "S", note: null },
   { year: 2018, month: 6, name: "ESL One Belo Horizonte 2018", cityZh: "贝洛奥里藏特", cityEn: "Belo Horizonte", venue: "Mineirinho Arena", champion: "FaZe Clan", tier: "S", note: null },
@@ -135,7 +136,7 @@ export const S_TIER_EVENTS: STierEvent[] = [
   { year: 2019, month: 4, name: "StarSeries i-League Season 7", cityZh: "上海", cityEn: "Shanghai", venue: null, champion: "Natus Vincere", tier: "S", note: null },
   { year: 2019, month: 4, name: "BLAST Pro Series Miami 2019", cityZh: "迈阿密", cityEn: "Miami", venue: "Watsco Center", champion: "FaZe Clan", tier: "S", note: null },
   { year: 2019, month: 5, name: "BLAST Pro Series Madrid 2019", cityZh: "马德里", cityEn: "Madrid", venue: "Madrid Arena", champion: "ENCE", tier: "S", note: null },
-  { year: 2019, month: 5, name: "cs_summit 4", cityZh: "洛杉矶", cityEn: "Los Angeles", venue: null, champion: "Team Liquid", tier: "S", note: null },
+  { year: 2019, month: 5, name: "cs_summit 4", cityZh: "洛杉矶", cityEn: "Los Angeles", venue: null, champion: "Team Vitality", tier: "S", note: null },
   { year: 2019, month: 6, name: "DreamHack Masters Dallas 2019", cityZh: "达拉斯", cityEn: "Dallas", venue: "Kay Bailey Hutchison Convention Center", champion: "Team Liquid", tier: "S", note: null },
   { year: 2019, month: 6, name: "ESL Pro League Season 9 Finals", cityZh: "蒙彼利埃", cityEn: "Montpellier", venue: null, champion: "Team Liquid", tier: "S", note: null },
   { year: 2019, month: 6, name: "ECS Season 7 Finals", cityZh: "伦敦", cityEn: "London", venue: "SSE Arena Wembley", champion: "Team Vitality", tier: "S", note: null },
@@ -172,7 +173,7 @@ export const S_TIER_EVENTS: STierEvent[] = [
   { year: 2023, month: 4, name: "IEM Rio 2023", cityZh: "里约热内卢", cityEn: "Rio de Janeiro", venue: "Jeunesse Arena", champion: "Team Vitality", tier: "S", note: null },
   { year: 2023, month: 5, name: "BLAST.tv Paris Major 2023", cityZh: "巴黎", cityEn: "Paris", venue: "Accor Arena", champion: "Team Vitality", tier: "Major", note: null },
   { year: 2023, month: 6, name: "IEM Dallas 2023", cityZh: "达拉斯", cityEn: "Dallas", venue: "Kay Bailey Hutchison Convention Center", champion: "ENCE", tier: "S", note: null },
-  { year: 2023, month: 6, name: "BLAST Premier Spring Final 2023", cityZh: "华盛顿", cityEn: "Washington, D.C.", venue: "Entertainment & Sports Arena", champion: "Team Vitality", tier: "S", note: null },
+  { year: 2023, month: 6, name: "BLAST Premier Spring Final 2023", cityZh: "华盛顿", cityEn: "Washington, D.C.", venue: "Entertainment & Sports Arena", champion: "Heroic", tier: "S", note: null },
   { year: 2023, month: 8, name: "IEM Cologne 2023", cityZh: "科隆", cityEn: "Cologne", venue: "Lanxess Arena", champion: "G2 Esports", tier: "S", note: null },
   { year: 2023, month: 8, name: "Gamers8 2023", cityZh: "利雅得", cityEn: "Riyadh", venue: null, champion: "Team Vitality", tier: "S", note: null },
   { year: 2023, month: 10, name: "ESL Pro League Season 18", cityZh: "马耳他", cityEn: "Malta", venue: null, champion: "MOUZ", tier: "S", note: null },
@@ -202,7 +203,7 @@ export const S_TIER_EVENTS: STierEvent[] = [
   { year: 2025, month: 4, name: "IEM Melbourne 2025", cityZh: "墨尔本", cityEn: "Melbourne", venue: null, champion: "Team Vitality", tier: "S", note: null },
   { year: 2025, month: 5, name: "BLAST Rivals 2025 Season 1", cityZh: "哥本哈根", cityEn: "Copenhagen", venue: "BLAST Studio", champion: "Team Vitality", tier: "S", note: null },
   { year: 2025, month: 5, name: "PGL Astana 2025", cityZh: "阿斯塔纳", cityEn: "Astana", venue: "Barys Arena", champion: "Team Spirit", tier: "S", note: null },
-  { year: 2025, month: 5, name: "IEM Dallas 2025", cityZh: "达拉斯", cityEn: "Dallas", venue: null, champion: "Team Spirit", tier: "S", note: null },
+  { year: 2025, month: 5, name: "IEM Dallas 2025", cityZh: "达拉斯", cityEn: "Dallas", venue: null, champion: "Team Vitality", tier: "S", note: null },
   { year: 2025, month: 6, name: "BLAST.tv Austin Major 2025", cityZh: "奥斯汀", cityEn: "Austin", venue: null, champion: "Team Vitality", tier: "Major", note: null },
   { year: 2025, month: 8, name: "IEM Cologne 2025", cityZh: "科隆", cityEn: "Cologne", venue: "Lanxess Arena", champion: "Team Spirit", tier: "S", note: null },
   { year: 2025, month: 8, name: "BLAST Bounty 2025 Season 2 Finals", cityZh: "阿塔德", cityEn: "Attard", venue: "BLAST Studio", champion: "Team Spirit", tier: "S", note: null },
@@ -228,9 +229,10 @@ export const S_TIER_EVENTS: STierEvent[] = [
   { year: 2026, month: 9, name: "BLAST Open Porto 2026", cityZh: "波尔图", cityEn: "Porto", venue: "Super Bock Arena", champion: "Team Spirit", tier: "S", note: null },
 ];
 
+export const S_TIER_EVENTS: STierEvent[] = [...BASE_S_TIER_EVENTS, ...DATA_SNAPSHOT.events.map(row => row.event)];
 export const STIER_YEAR_MIN = 2013;
-export const STIER_YEAR_MAX = 2026;
-export const STIER_SOURCE = "数据来源：HLTV.org，整理于 2026-09";
+export const STIER_YEAR_MAX = Math.max(2026, ...S_TIER_EVENTS.map(event => event.year));
+export const STIER_SOURCE = DATA_SNAPSHOT.eventSync ? `基础档案 HLTV.org · 增量 ${DATA_SNAPSHOT.eventSync.sourceName} · 来源截至 ${DATA_SNAPSHOT.eventSync.sourceAsOf.slice(0, 10)}` : "内置赛事档案：HLTV.org，整理于 2026-09 · 自动更新未接入";
 
 type CityMeta = { id: string; city: string; cityZh: string; lat: number; lng: number };
 
@@ -314,6 +316,9 @@ const CITY_BY_EN: Record<string, CityMeta> = {
   Haikou: { id: "haikou", city: "Haikou", cityZh: "海口", lat: 20.044, lng: 110.1999 },
   Changzhou: { id: "changzhou", city: "Changzhou", cityZh: "常州", lat: 31.8107, lng: 119.9741 },
 };
+
+export const BASE_CITY_METADATA = Object.values(CITY_BY_EN).filter((city, index, all) => all.findIndex(row => row.id === city.id) === index);
+for (const row of DATA_SNAPSHOT.events) CITY_BY_EN[row.event.cityEn] = row.city;
 
 const HOLY_IDS = new Set(["katowice", "cologne", "copenhagen", "dallas", "malta", "stockholm", "rio"]);
 

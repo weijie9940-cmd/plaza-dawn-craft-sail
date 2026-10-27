@@ -35,3 +35,7 @@ attachments/
 # OS
 .DS_Store
 *.log
+
+# Transient data publisher locks and atomic-write files
+src/data/sync/*.lock
+src/data/sync/*.tmp

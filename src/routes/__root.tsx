@@ -3,7 +3,7 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "ORBITAL · CS 电竞版图";
+const APP_NAME = "ORBITAL 寰宇";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -13,7 +13,8 @@ export const Route = createRootRoute({
       { title: APP_NAME },
       {
         name: "description",
-        content: "交互式 3D 地球，标出 CS 电竞 S 级赛事与 Major 的举办城市、冠军和当场 MVP。",
+        content:
+          "在地球上探索 CS 电竞历史：回顾 Major 与 S 级赛事，追寻战队夺冠足迹、MVP 与经典阵容。",
       },
       { name: "theme-color", content: "#05070c" },
     ],
